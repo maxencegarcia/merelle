@@ -1,0 +1,1624 @@
+================================================================================
+                    DOCUMENTATION FRAMEWORK BOARDIFIER
+================================================================================
+
+🔝 INFORMATIONS ESSENTIELLES POUR LE DÉVELOPPEMENT
+================================================================================
+
+TYPE DE PROJET: Framework Java pour Jeux de Plateau et Jeux de Sprites
+TECHNOLOGIE: Java (Framework avec Classes Préfabriquées)
+ARCHITECTURE: MVC (Modèle-Vue-Contrôleur) + Système Orienté Événements
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QU'EST-CE QUE BOARDIFIER?
+
+Boardifier est un FRAMEWORK Java réutilisable (pas un jeu complet). Il fournit:
+  • Architecture MVC avec séparation claire des responsabilités
+  • Gestion d'état orientée événements
+  • Système d'l'animation basé sur les images clés
+  • Orchestration d'les actions/commandes
+  • Chargement dynamique des étapes via réflexion
+  • Rendu basé sur des caractères console
+  • Système de décision enfichable prêt pour l'IA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DÉMARRAGE RAPIDE: LANCER LE PROJET
+
+1. Assurez-vous que Java est installé (JDK 8+)
+2. Boardifier est une BIBLIOTHÈQUE FRAMEWORK - elle nécessite une implémentation de jeu
+3. Utilisation: Créez votre propre classe de jeu qui étend les classes du framework
+4. Structure exemple:
+   - Créez MyGameController extends Controller
+   - Créez Level1Model extends GameStageModel
+   - Créez Level1View extends GameStageView
+   - Enregistrez les étapes dans StageFactory
+   - Lancez depuis main(String[] args)
+
+5. Compilation: javac -cp boardifier.jar src/*.java
+6. Exécution: java -cp boardifier.jar:src MyGame
+
+PAS D'EXÉCUTABLE PAR DÉFAUT - Les étudiants doivent implémenter leur propre contrôleur de jeu!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DÉPENDANCE CRITIQUE: CLASSES JAVA PRÉFABRIQUÉES
+
+Ce projet repose FORTEMENT sur les classes préfabriquées fournies en tant que framework.
+
+FOURNI PAR LE FRAMEWORK (40+ classes) vs DÉVELOPPÉ PAR LES ÉTUDIANTS (0 à plusieurs):
+
+PRÉFABRIQUÉ (FRAMEWORK):
+  ✓ Model.java - État de jeu central
+  ✓ GameElement, SpriteElement, TextElement, etc. - Hiérarchie d'éléments
+  ✓ GameStageModel - Base abstraite pour les étapes
+  ✓ ContainerElement - Gestion de grille/plateau
+  ✓ Systèmes d'les actions/l'animations
+  ✓ Controller - Boucle de jeu abstraite
+  ✓ View/ElementLook - Système de rendu
+  ✓ Event/EventQueue - Mises à jour réactives
+  ✓ StageFactory, ActionFactory - Chargement dynamique via réflexion
+
+DÉVELOPPÉ PAR LES ÉTUDIANTS:
+  ? Sous-classes de GameStageModel (une par niveau)
+  ? Sous-classes de GameStageView (une par niveau)
+  ? Sous-classe de Controller (boucle spécifique au jeu)
+  ? Sous-classes personnalisées de GameElement (si nécessaire)
+  ? Sous-classes de Decider (logique IA, optionnel)
+  ? Classe de point d'entrée principal
+  ? Logique d'action/l'animation spécifique au jeu
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STRUCTURE DU PROJET
+
+boardifier/
+├── contrôle/               (Couche de Coordination du Jeu)
+│   ├── ActionFactory.java         - Création d'les actions basée sur la réflexion
+│   ├── ActionPlayer.java          - Exécute les les actions en file d'attente
+│   ├── Controller.java            - Orchestrateur abstrait de boucle de jeu
+│   ├── Decider.java              - Interface de stratégie pour décisions IA
+│   ├── Logger.java               - Utilitaire de journalisation
+│   └── StageFactory.java         - Chargement d'étapes basé sur la réflexion
+│
+├── modèle/                 (Couche d'État du Jeu)
+│   ├── Model.java               - État de jeu central & gestion FPS
+│   ├── GameStageModel.java      - Conteneur d'étape abstrait
+│   ├── Player.java              - Représentation du joueur
+│   ├── GameElement.java         - Classe de base pour tous les objets de jeu
+│   ├── Coord2D.java            - Système de coordonnées 2D
+│   ├── Event.java              - Notifications de changement d'état
+│   ├── EventQueue.java         - Système de traitement des événements
+│   ├── ElementTypes.java       - Registre de type pour les éléments
+│   ├── GameException.java      - Exception personnalisée
+│   ├── ContainerElement.java   - Conteneurs basés sur grille (cases de plateau)
+│   ├── SpriteElement.java      - Pièces de jeu animées
+│   ├── StaticElement.java      - Objets non-animés
+│   ├── TextElement.java        - Éléments de rendu de texte
+│   ├── BackgroundElement.java  - Graphiques d'arrière-plan
+│   ├── DiceElement.java        - Dé avec l'animation de lancer
+│   ├── SelectionCallback.java  - Interface pour événements de sélection
+│   ├── ContainerOpCallback.java- Interface pour opérations de conteneur
+│   │
+│   ├── action/            (Actions/Commandes du Jeu)
+│   │   ├── GameAction.java            - Base abstraite d'action
+│   │   ├── ActionList.java            - Conteneur d'les actions séquentielles
+│   │   ├── ActionCallback.java        - Interface d'achèvement d'action
+│   │   ├── DrawDiceAction.java        - Logique de lancer de dé
+│   │   ├── MoveWithinContainerAction.java - Déplacement dans conteneur
+│   │   ├── PutInContainerAction.java  - Ajout à conteneur
+│   │   ├── RemoveFromContainerAction.java - Retrait de conteneur
+│   │   └── RemoveFromStageAction.java - Suppression d'étape
+│   │
+│   └── l'animation/         (Système d'Animation)
+│       ├── Animation.java             - Base abstraite d'l'animation
+│       ├── AnimationTypes.java        - Registre de type
+│       ├── AnimationCallback.java     - Interface d'achèvement
+│       ├── AnimationState.java        - Énumération de phase d'l'animation
+│       ├── AnimationStep.java         - Image d'l'animation unique
+│       ├── FaceAnimation.java         - Changements de face/image de sprite
+│       ├── CyclicFaceAnimation.java   - Changements de face en boucle
+│       ├── MoveAnimation.java         - Changements de position (abstrait)
+│       ├── LinearMoveAnimation.java   - Mouvement linéaire
+│       └── WaitAnimation.java         - Délai de temps
+│
+└── vue/                  (Couche de Rendu)
+    ├── View.java               - Orchestrateur principal de rendu
+    ├── GameStageView.java      - Vue d'étape abstraite
+    ├── RootPane.java          - Rendu de caractères console
+    ├── ElementLook.java       - Visuel d'élément abstrait
+    ├── ConsoleColor.java      - Constantes de couleur pour console
+    ├── ContainerLook.java     - Visuel pour éléments de conteneur
+    ├── GridLook.java          - Apparence de disposition en grille
+    ├── TableLook.java         - Apparence de disposition en tableau
+    ├── TextLook.java          - Apparence d'élément de texte
+    └── ClassicBoardLook.java  - Apparence classique de plateau
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTRAINTES CLÉS ET NOTES IMPORTANTES
+
+1. PAS DE CLASSE MAIN FOURNIE
+   → Le framework est une BIBLIOTHÈQUE, pas une application complète
+   → L'étudiant DOIT créer le point d'entrée principal
+
+2. PATTERN DE FACTORY BASÉ SUR LA RÉFLEXION
+   → StageFactory utilise la réflexion pour charger les classes par nom
+   → Les étapes doivent être enregistrées AVANT utilisation
+   → Exemple: StageFactory.registerModelAndView("level1", 
+              "mypackage.Level1Model", "mypackage.Level1View")
+
+3. BOUCLE BASÉE SUR LES IMAGES CLÉS
+   → Le contrôleur exécute une boucle infinie appelant update() chaque frame
+   → FPS par défaut: 100 (10ms par frame via frameGap)
+   → Modification via Model.setFrameGap(nanosecondes)
+
+4. SYSTÈME ORIENTÉ ÉVÉNEMENTS
+   → Les changements de GameElement mettent événements en file d'attente automatiquement
+   → Les événements sont traités après chaque action
+   → Activer/désactiver la capture d'événements dans les paramètres du modèle
+
+5. L'ANIMATION EST BASÉE SUR LES IMAGES
+   → Les l'animations s'exécutent dans la boucle de jeu
+   → Chaque frame fait progresser l'l'animation d'une étape
+   → Plusieurs l'animations peuvent s'exécuter simultanément
+
+6. PAS DE RÉSEAU/IA INTÉGRé
+   → L'IA nécessite une implémentation personnalisée de Decider
+   → Les fonctionnalités réseau ne sont pas fournies par le framework
+
+7. ÉLÉMENTS DE CONTENEUR NÉCESSAIRES POUR LES JEUX DE PLATEAU
+   → ContainerElement = cases de plateau, positions de jeu
+   → Nécessaire pour les jeux basés sur une grille
+   → Support des callbacks sur les opérations put/move/remove
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+================================================================================
+📚 DOCUMENTATION TECHNIQUE COMPLÈTE
+================================================================================
+
+1. APERÇU DU PROJET
+================================================================================
+
+Boardifier est un framework Java complet pour développer des jeux de plateau
+et des jeux basés sur des sprites avec une architecture MVC propre et extensible.
+
+OBJECTIF:
+  • Fournir une infrastructure de jeu réutilisable
+  • Gérer l'état du jeu, l'l'animation, les événements, les les actions
+  • Séparer les responsabilités (modèle, vue, contrôle)
+  • Permettre le développement rapide de jeux par héritage
+  • Soutenir à la fois les joueurs humains et les joueurs IA
+
+NON FOURNI:
+  • Implémentation complète du jeu
+  • Règles ou logique de jeu spécifiques
+  • Fonctionnalités réseau/multijoueur
+  • Graphiques 3D (rendu console uniquement)
+  • Sons ou multimédia avancés
+
+USAGE CIBLE:
+  • Projets éducatifs (apprentissage du développement de jeux)
+  • Implémentations de jeux de plateau (échecs, dames, etc.)
+  • Jeux au tour par tour
+  • Jeux basés sur console
+  • Prototypage de jeux
+
+
+2. STRUCTURE DU PROJET
+================================================================================
+
+ORGANISATION PAR COUCHES:
+
+Couche Model (modèle/)
+  • Gére l'état du jeu et les structures de données
+  • Aucune connaissance directe du rendu
+  • Événements: les changements notifient les observateurs
+  • Contient 25+ classes organisées par responsabilité
+  • Complètement découplée de View et Control
+
+Couche Control (contrôle/)
+  • Orchestre le flux du jeu
+  • Traite l'entrée et génère les les actions
+  • Coordonne les mises à jour du Model et le rendu de la View
+  • Contient 6 classes
+  • Implémente la boucle de jeu et la gestion des joueurs
+
+Couche View (vue/)
+  • Rend l'état du jeu à la console
+  • Aucune logique de jeu
+  • Lit le Model, ne le modifie jamais
+  • Contient 10+ classes
+  • Prend en charge plusieurs représentations visuelles
+
+CONVENTION DE NOMMAGE:
+  • Classes Base/Abstraites: GameElement, GameStageModel, Controller, etc.
+  • Classes concrètes du framework: Model, Player, Event, SpriteElement, etc.
+  • Classes Factory: StageFactory, ActionFactory
+  • Classes Look: ElementLook, GridLook, TableLook (représentations visuelles)
+
+
+3. CLASSES JAVA PRÉFABRIQUÉES
+================================================================================
+
+Le framework se compose d'environ 45-50 classes Java organis\u00e9es en 
+trois couches. Voici la r\u00e9f\u00e9rence compl\u00e8te:
+
+═══════════════════════════════════════════════════════════════════════════════
+3.1 CLASSES PRÉFABRIQUÉES DE LA COUCHE MODEL
+═══════════════════════════════════════════════════════════════════════════════
+
+GESTION DE L'ÉTAT CENTRAL:
+
+Model.java (PRÉFABRIQUÉE - NE PAS SURCHARGER)
+  Objectif: Gestionnaire d'état de jeu global
+  Responsabilités:
+    • Maintenir l'état du jeu (INIT, PLAY, PAUSED, ENDSTAGE, ENDGAME)
+    • Gérer la synchronisation FPS/frame
+    • Suivre les joueurs et le joueur actuel
+    • Tenir une référence au GameStageModel actuel
+    • Gérer les drapeaux de capture d'événements d'entrée
+    
+  Attributs Critiques:
+    - state: int - phase de jeu actuelle
+    - frameGap: long - nanosecondes entre les frames (par défaut: 10ms = 10000000ns)
+    - players: List<Player> - liste de tous les joueurs
+    - idPlayer: int - index du joueur actuel
+    - gameStageModel: GameStageModel - étape actuellement active
+    - captureMouseEvent, captureKeyEvent: boolean - commutateurs d'entrée
+    
+  Méthodes Clés:
+    - startGame(GameStageModel) - initialiser l'étape
+    - update() - appelé chaque frame
+    - reset() - réinitialiser à l'état initial
+    - setFrameGap(long) - ajuster les FPS
+    - addPlayer(Player) - ajouter un joueur au jeu
+    - getPlayer(int), getCurrentPlayer() - accéder aux joueurs
+    - endGame(), endStage() - transitions d'état
+    
+  Comment l'utiliser:
+    Model modèle = new Model();
+    modèle.setFrameGap(10000000); // 100 FPS
+    modèle.addPlayer(Player.createHumanPlayer("Alice"));
+    
+
+GameStageModel.java (PRÉFABRIQUÉE - ABSTRAITE, DOIT SURCHARGER)
+  Purpose: Conteneur abstrait pour une étape/niveau de jeu unique
+  Responsabilités:
+    • Définir des éléments dans une étape spécifique
+    • Gérer les éléments de conteneur (plateau, grille)
+    • Suivre les éléments sélectionnés
+    • Invoquer les callbacks pour les opérations de conteneur
+    • Héberger l'état spécifique à l'étape
+    
+  Attributs Critiques:
+    - name: String - identifiant unique d'étape (DOIT correspondre à l'enregistrement StageFactory)
+    - modèle: Model - référence du modèle de jeu parent
+    - state: int - état de l'étape local
+    - elements: List<GameElement> - tous les objets de jeu
+    - containers: List<ContainerElement> - conteneurs de plateau/grille
+    - selected: List<GameElement> - éléments actuellement sélectionnés
+    - Callbacks: onSelectionChangeCallback, onPutInContainerCallback, etc.
+    
+  Méthodes Clés:
+    - createElements(StageElementsFactory) - ABSTRAITE, DOIT SURCHARGER
+    - addElement(GameElement), removeElement(GameElement)
+    - select(GameElement), unselect(GameElement)
+    - getElement(int), getElements(), getContainers()
+    - getElementAt(double x, double y) - requêtes spatiales
+    
+  Extension Exemple:
+    public class Level1Model extends GameStageModel {
+        @Override
+        public void createElements(StageElementsFactory factory) {
+            // Create all game objects for level 1
+            ContainerElement board = factory.createContainerElement(...);
+            SpriteElement piece = factory.createSpriteElement(...);
+            addElement(board);
+            addElement(piece);
+        }
+    }
+
+
+Player.java (PRÉFABRIQUÉE - IMMUABLE APRÈS CRÉATION)
+  Purpose: Représente un joueur dans le jeu
+  Responsabilités:
+    • Suivre le type de joueur (HUMAIN ou ORDINATEUR)
+    • Tenir le nom du joueur
+    • Suivre les touches actuellement appuyées
+    
+  Constants:
+    - HUMAN = 0
+    - COMPUTER = 1
+    
+  Méthodes Clés:
+    - static Player createHumanPlayer(String name)
+    - static Player createComputerPlayer(String name)
+    - getType(), getName()
+    - addKeyPressed(String), removeKeyPressed(String), isKeyPressed(String)
+    - reset() - effacer l'état des clés
+    
+  Comment l'utiliser:
+    Player p1 = Player.createHumanPlayer("Alice");
+    Player p2 = Player.createComputerPlayer("AI_Bot");
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.2 HIÉRARCHIE D'ÉLÉMENTS DE JEU
+═══════════════════════════════════════════════════════════════════════════════
+
+Tous les objets de jeu héritent de GameElement.java (BASE ABSTRAITE PRÉFABRIQUÉE)
+
+HIÉRARCHIE D'HÉRITAGE:
+
+GameElement (ABSTRAITE - CLASSE DE BASE PRÉFABRIQUÉE)
+  ├─ SpriteElement (pièce de jeu animée)
+  │  └─ DiceElement (sprite spécial pour dés)
+  ├─ StaticElement (objet non-animé)
+  ├─ TextElement (rendu de texte)
+  ├─ BackgroundElement (arrière-plan d'étape)
+  └─ ContainerElement (conteneur de grille/plateau)
+
+
+GameElement.java (PRÉFABRIQUÉE - CLASSE DE BASE ABSTRAITE)
+  Purpose: Classe de base pour tous les objets de jeu
+  Responsabilités:
+    • Gestion des positions (coordonnées x, y)
+    • Contrôle de visibilité
+    • État de sélection
+    • Drapeaux de cliquabilité
+    • Hébergement d'l'animations
+    • Suivi des relations de conteneur
+    • Gestion de la file d'événements
+    
+  Attributs Critiques:
+    - x, y: double - emplacement dans l'espace de jeu
+    - gameStageModel: GameStageModel - référence à l'étape propriétaire
+    - visible: boolean - drapeau de rendu
+    - selected: boolean - état de sélection
+    - clickable: boolean - drapeau interactif
+    - idContainer: int - ID du conteneur parent (-1 si pas dans un conteneur)
+    - animated: boolean - drapeau d'l'animations
+    - l'animations: List<Animation> - l'animations en file d'attente
+    - eventQueue: EventQueue - événements spécifiques à l'élément
+    
+  Méthodes Clés:
+    - moveTo(double x, double y) - changer de position
+    - moveTo(Coord2D) - version coordonnée
+    - setVisible(boolean), isVisible()
+    - setSelected(boolean), isSelected()
+    - setClickable(boolean), isClickable()
+    - addAnimation(Animation) - mettre en file d'attente l'animation
+    - update() - appelé chaque frame (process l'animations, queue les événements)
+    - getEventQueue(), hasEvent()
+    
+  Motif de Conception: Composite/Classe de Base Abstraite
+
+
+SpriteElement.java (PREFABRICATED - CONCRETE SUBCLASS OF GameElement)
+  Purpose: Animé game piece with visual appearance
+  Responsabilités:
+    • Display a visual representation
+    • Support face/image changes
+    • Queue l'animations
+    • Manage l'animation state
+    
+  Attributs Critiques:
+    - idElementType: int - type registry ID
+    - faces: List<String> - available visual states
+    - idCurrentFace: int - current visual state
+    - elementLook: ElementLook - visual renderer
+    
+  Méthodes Clés:
+    - changeFace(int idFace) - change visual appearance
+    - getCurrentFace(), getCurrentFaceId()
+    - setElementLook(ElementLook) - attach visual
+    
+  Comment l'utiliser:
+    SpriteElement piece = new SpriteElement("piece", modèle.getCurrentStage(), type);
+    piece.moveTo(10, 20);
+    piece.changeFace(0); // Show first face
+    piece.addAnimation(new LinearMoveAnimation(10, 100, 100, 2000)); // Move over 2s
+
+
+TextElement.java (PREFABRICATED - CONCRETE SUBCLASS OF GameElement)
+  Purpose: Display text in game
+  Responsabilités:
+    • Rendre text content
+    • Manage text properties
+    
+  Méthodes Clés:
+    - setText(String)
+    - getText()
+
+
+StaticElement.java (PREFABRICATED - CONCRETE SUBCLASS OF GameElement)
+  Purpose: Non-animated visual element
+  Use: Obstacles, decorations, board elements
+
+
+BackgroundElement.java (PREFABRICATED - CONCRETE SUBCLASS OF GameElement)
+  Purpose: Stage background
+  Use: Set once per stage as visual backdrop
+
+
+DiceElement.java (PREFABRICATED - CONCRETE SUBCLASS OF SpriteElement)
+  Purpose: Specialized element for dice with built-in rolling l'animation
+  Méthodes Clés:
+    - roll(int numFaces, int duration) - roll l'animation
+    - getValue() - get current face value
+
+
+ContainerElement.java (PREFABRICATED - ABSTRACT SUBCLASS OF GameElement)
+  Purpose: Grid-based container for other elements (cases de plateau, inventory)
+  Responsabilités:
+    • Hold lists of contained elements
+    • Manage spatial grid layout
+    • Invoke callbacks on operations
+    • Track multiple contained elements per cell
+    
+  Attributs Critiques:
+    - nbRows, nbCols: int - grid dimensions
+    - gridElements: List<List<GameElement>>[] - 2D grid
+    - onPutInCallback, onMoveInCallback, onRemoveFromCallback: Callbacks
+    
+  Méthodes Clés:
+    - putElement(GameElement, int ligne, int colonne) - add to grid
+    - removeElement(GameElement) - remove from grid
+    - getElement(int ligne, int colonne) - access by position
+    - getElements(), getElements(int ligne, int colonne)
+    - Callback registration methods
+    
+  Concrete Implementations:
+    - GridLook - Standard grid visualization
+    - TableLook - Table-based visualization
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.3 GESTION DES ÉVÉNEMENTS ET DE L'ÉTAT
+═══════════════════════════════════════════════════════════════════════════════
+
+Event.java (PREFABRICATED - STATE CHANGE NOTIFICATION)
+  Purpose: Notification of state changes
+  Contains:
+    - eventType: int
+    - source: GameElement
+    - targetX, targetY: double - related coordinates
+    - action: GameAction - related action
+
+
+EventQueue.java (PREFABRICATED - QUEUE MANAGER)
+  Purpose: Store and process les événements
+  Methods:
+    - addEvent(Event)
+    - hasEvent()
+    - nextEvent(), consumeEvent()
+    - clear()
+
+
+Coord2D.java (PREFABRICATED - COORDINATE SYSTEM)
+  Purpose: 2D point representation
+  Attributes: x, y (int or double)
+
+
+ElementTypes.java (PREFABRICATED - TYPE REGISTRY)
+  Purpose: Registry for element type IDs
+  Usage:
+    - Central registration point for custom element types
+    - Returns type ID for type name lookup
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.4 SYSTÈME D'ACTION/COMMANDE
+═══════════════════════════════════════════════════════════════════════════════
+
+GameAction.java (PREFABRICATED - ABSTRACT ACTION BASE)
+  Purpose: Abstract base for all game commands
+  Responsabilités:
+    • Encapsulate a game operation
+    • Execute in sequence
+    • Invoke callback on completion
+    • Support l'animation
+    
+  Méthodes Clés:
+    - execute() - ABSTRACT, perform the action
+    - onExecution() - callback after execute
+    - setCallback(ActionCallback)
+
+
+ActionList.java (PREFABRICATED - COMPOSITE ACTION)
+  Purpose: Sequential container of les actions
+  Responsabilités:
+    • Execute les actions one after another
+    • Invoke callback when all complete
+    
+  Methods:
+    - addAction(GameAction)
+    - execute()
+
+
+DrawDiceAction.java (PREFABRICATED - CONCRETE ACTION)
+  Purpose: Roll a dice element
+  Comment l'utiliser:
+    DrawDiceAction rollDice = new DrawDiceAction(diceElement, 6, 1000);
+    rollDice.setCallback(() -> System.out.println("Rolled: " + diceElement.getValue()));
+
+
+MoveWithinContainerAction.java (PREFABRICATED - CONCRETE ACTION)
+  Purpose: Move element between container cells
+
+
+PutInContainerAction.java (PREFABRICATED - CONCRETE ACTION)
+  Purpose: Add element to container
+
+
+RemoveFromContainerAction.java (PREFABRICATED - CONCRETE ACTION)
+  Purpose: Remove element from container
+
+
+RemoveFromStageAction.java (PREFABRICATED - CONCRETE ACTION)
+  Purpose: Delete element from stage
+
+
+ActionFactory.java (PREFABRICATED - REFLECTION-BASED FACTORY)
+  Purpose: Dynamic action creation by class name
+  Usage:
+    GameAction action = ActionFactory.createAction("MyAction", ...params...);
+
+
+ActionCallback.java (PREFABRICATED - INTERFACE)
+  Purpose: Listen for action completion
+  Methods:
+    - onAction() - appelé when action completes
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.5 SYSTÈME D'ANIMATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Animation.java (PREFABRICATED - ABSTRACT ANIMATION BASE)
+  Purpose: Abstract base for all l'animations
+  Responsabilités:
+    • Execute over multiple frames
+    • Track l'animation progress (INIT, RUNNING, STOPPED)
+    • Invoke callback on completion
+    
+  Attributs Critiques:
+    - gameElement: GameElement - animated object
+    - state: int (INIT, RUNNING, STOPPED)
+    - duration: long - total duration in milliseconds
+    - elapsedTime: long - time elapsed since start
+    
+  Méthodes Clés:
+    - start() - begin l'animation
+    - update() - advance l'animation (appelé chaque frame)
+    - stop() - end l'animation
+    - setCallback(AnimationCallback)
+    - isRunning(), isStopped()
+    
+  Update Cycle:
+    1. start() appelé
+    2. Each game frame calls update()
+    3. When duration expires, callback invoked
+
+
+LinearMoveAnimation.java (PREFABRICATED - CONCRETE ANIMATION)
+  Purpose: Linear position change
+  Constructor:
+    LinearMoveAnimation(GameElement element, double toX, double toY, long duration)
+  Exemple:
+    element.addAnimation(new LinearMoveAnimation(piece, 100, 200, 1000));
+    // Piece moves to (100, 200) over 1 second
+
+
+FaceAnimation.java (PREFABRICATED - CONCRETE ANIMATION)
+  Purpose: Change sprite face once
+  Constructor:
+    FaceAnimation(SpriteElement element, int faceId, long startTime)
+
+
+CyclicFaceAnimation.java (PREFABRICATED - CONCRETE ANIMATION)
+  Purpose: Loop through faces repeatedly
+  Constructor:
+    CyclicFaceAnimation(SpriteElement element, int startFace, int nbFaces, long duration)
+
+
+WaitAnimation.java (PREFABRICATED - CONCRETE ANIMATION)
+  Purpose: Pause for a duration (useful in action sequences)
+  Constructor:
+    WaitAnimation(GameElement element, long duration)
+
+
+AnimationTypes.java (PREFABRICATED - TYPE REGISTRY)
+  Purpose: Registry for custom l'animation types
+
+
+AnimationCallback.java (PREFABRICATED - INTERFACE)
+  Purpose: Listen for l'animation completion
+  Methods:
+    - onAnimation() - appelé when l'animation completes
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.6 CLASSES PRÉFABRIQUÉES DE LA COUCHE CONTROL
+═══════════════════════════════════════════════════════════════════════════════
+
+Controller.java (PREFABRICATED - ABSTRACT GAME LOOP ORCHESTRATOR)
+  Purpose: Main game loop and coordination
+  Responsabilités:
+    • Infinite game loop
+    • Input processing
+    • Action creation and queuing
+    • Exécution d'action
+    • View rendu
+    • Lifecycle management
+    
+  Key Attributes:
+    - modèle: Model
+    - vue: View
+    - actionPlayer: ActionPlayer
+    - decider: Decider - AI strategy
+    - firstStageName: String
+    
+  Méthodes Clés:
+    - startGame() - begins infinite loop
+    - stageLoop() - ABSTRACT, game-specific logic
+    - setFirstStageName(String)
+    - setDecider(Decider) - set AI strategy
+    - nextStage(String stageName) - load new stage
+    - createAction() - ABSTRACT, input → action
+    - displayMessage(String)
+    
+  Override Requirements:
+    - stageLoop() - YOUR GAME LOGIC HERE
+      Called each iteration; should:
+      1. Handle user input
+      2. Create les actions from input
+      3. Queue les actions for execution
+      4. Call vue.render() to display
+      
+  Cycle de vie:
+    Controller.startGame()
+      ├─ Model.startGame(firstStage)
+      ├─ View.update()
+      ├─ Boucle: stageLoop()
+      │  ├─ Gérer l'entrée
+      │  ├─ Create les actions
+      │  ├─ actionPlayer.play(les actions)
+      │  ├─ Model.update()
+      │  ├─ View.update()
+      │  └─ Pause pour maintenir les FPS
+      └─ End when modèle.isGameRunning() = false
+
+
+StageFactory.java (PREFABRICATED - REFLECTION-BASED FACTORY)
+  Purpose: Dynamic stage loading by class name
+  Responsabilités:
+    • Register stage modèle and vue classes
+    • Create instances via reflection
+    • Cache loaded classes
+    
+  Key Methods (STATIC):
+    - registerModelAndView(String stageName, String modèleClassName, String vueClassName)
+    - getModel(String stageName, Model modèle)
+    - getView(String stageName, Model modèle)
+    
+  Usage Exemple:
+    StageFactory.registerModelAndView("level1", "game.Level1Model", "game.Level1View");
+    StageFactory.registerModelAndView("level2", "game.Level2Model", "game.Level2View");
+    
+    GameStageModel modèle = StageFactory.getModel("level1", gameModel);
+    GameStageView vue = StageFactory.getView("level1", gameModel);
+    
+  Important:
+    - Must register BEFORE calling getModel/getView
+    - Class names MUST be fully qualified (with package)
+    - Classes MUST exist on classpath
+
+
+ActionFactory.java (PREFABRICATED - REFLECTION-BASED ACTION FACTORY)
+  Purpose: Dynamic action creation
+  Methods:
+    - registerAction(String name, Class<? extends GameAction>)
+    - createAction(String name, ...params...)
+
+
+ActionPlayer.java (PREFABRICATED - ACTION EXECUTOR)
+  Purpose: Execute queued les actions sequentially
+  Responsabilités:
+    • Queue les actions
+    • Execute in order
+    • Invoke callbacks
+    
+  Méthodes Clés:
+    - addAction(GameAction) - queue action
+    - play(List<GameAction>) - queue multiple
+    - update() - advance execution
+    - clear() - empty queue
+
+
+Decider.java (PREFABRICATED - STRATEGY INTERFACE FOR AI)
+  Purpose: Abstract interface for AI decision-making
+  Responsabilités:
+    • Determine next move for computer players
+    
+  Méthodes Clés:
+    - List<GameAction> decide(GameStageModel, Player, List<GameAction> possibleActions)
+    
+  Implementation Exemple:
+    public class RandomDecider implements Decider {
+        @Override
+        public List<GameAction> decide(GameStageModel stage, Player player, 
+                                       List<GameAction> possibleActions) {
+            // Return random action from possibilities
+            return Arrays.asList(possibleActions.get(new Random().nextInt(...)));
+        }
+    }
+
+
+Logger.java (PREFABRICATED - LOGGING UTILITY)
+  Purpose: Debug and gameplay logging
+  Methods:
+    - static void log(String message)
+    - static void log(String tag, String message)
+    - static void enable()/disable()
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.7 CLASSES PRÉFABRIQUÉES DE LA COUCHE VIEW
+═══════════════════════════════════════════════════════════════════════════════
+
+View.java (PREFABRICATED - MAIN RENDERING ORCHESTRATOR)
+  Purpose: Coordinate all rendu
+  Responsabilités:
+    • Route rendu to appropriate GameStageView
+    • Clear and display console
+    • Manage FPS timing
+    
+  Méthodes Clés:
+    - update() - render current stage
+    - render(GameStageModel, GameStageView)
+    
+  Comment l'utiliser:
+    View vue = new View(modèle);
+    vue.update(); // Call chaque frame from Controller
+
+
+GameStageView.java (PREFABRICATED - ABSTRACT STAGE VIEW)
+  Purpose: Abstract container for stage rendu
+  Responsabilités:
+    • Define visual representation of stage
+    • Create ElementLook for each element
+    • Update look properties
+    
+  Key Attributes:
+    - modèle: GameStageModel
+    - elementLooks: Map<GameElement, ElementLook>
+    
+  Méthodes Clés:
+    - createElementLooks() - ABSTRACT, MUST OVERRIDE
+      Create and register ElementLook for each element
+    - createElementLook(GameElement) - ABSTRACT
+      Factory for individual looks
+    - getElementLook(GameElement) - get look for element
+    
+  Override Requirements:
+    public class Level1View extends GameStageView {
+        @Override
+        public void createElementLooks() {
+            // Create looks for all elements in stage
+            ElementLook boardLook = createElementLook(stage.getElements().get(0));
+            ElementLook pieceLook = createElementLook(stage.getElements().get(1));
+        }
+        
+        @Override
+        protected ElementLook createElementLook(GameElement element) {
+            if (element instanceof ContainerElement) {
+                return new GridLook((ContainerElement) element, ...);
+            } else if (element instanceof SpriteElement) {
+                return new ClassicBoardLook((SpriteElement) element);
+            }
+            return null; // or default look
+        }
+    }
+
+
+ElementLook.java (PREFABRICATED - ABSTRACT VISUAL REPRESENTATION)
+  Purpose: Abstract base for element visuals
+  Responsabilités:
+    • Define how element appears
+    • Provide rendu logic
+    
+  Méthodes Clés:
+    - getElementsAtPos(int x, int y, int z) - spatial queries
+    - getShape(int x, int y) - character representation
+
+
+ClassicBoardLook.java (PREFABRICATED - CONCRETE LOOK)
+  Purpose: Classic board game piece visualization
+  Constructor:
+    ClassicBoardLook(SpriteElement element, String shape, ConsoleColor colonneor)
+
+
+GridLook.java (PREFABRICATED - GRID VISUALIZATION)
+  Purpose: Grid-based container visualization
+  Constructor:
+    GridLook(ContainerElement container, ...)
+  Usage: Board games, inventory grids
+
+
+TableLook.java (PREFABRICATED - TABLE VISUALIZATION)
+  Purpose: Table-based layout
+  Similar to GridLook but different appearance
+
+
+TextLook.java (PREFABRICATED - TEXT VISUALIZATION)
+  Purpose: Rendre TextElement
+
+
+ContainerLook.java (PREFABRICATED - CONTAINER VISUALIZATION)
+  Purpose: Generic container visualization
+
+
+RootPane.java (PREFABRICATED - CONSOLE RENDERING ENGINE)
+  Purpose: Character-by-character console output
+  Responsabilités:
+    • Maintain character grid
+    • Sort elements by profondeur (z-order)
+    • Clear and display
+    
+  Méthodes Clés:
+    - print(int x, int y, String text, ConsoleColor colonneor)
+    - show(GameStageView vue)
+    - clear()
+
+
+ConsoleColor.java (PREFABRICATED - COLOR CONSTANTS)
+  Purpose: Standard console colonneors
+  Constants: BLACK, RED, GREEN, BLUE, WHITE, YELLOW, CYAN, MAGENTA, etc.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3.8 CLASSES UTILITAIRES
+═══════════════════════════════════════════════════════════════════════════════
+
+GameException.java (PREFABRICATED - CUSTOM EXCEPTION)
+  Purpose: Framework-specific exceptions
+  Usage:
+    thligne new GameException("Invalid stage name");
+
+
+StageElementsFactory.java (PREFABRICATED - HELPER FACTORY)
+  Purpose: Utility for creating elements in stages
+  Provided to GameStageModel.createElements()
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+SUMMARY: PREFABRICATED CLASSES
+
+Framework provides:
+  • Complete MVC architecture
+  • All base classes and interfaces
+  • Reflection-based factories
+  • Animation and action systems
+  • Event management
+  • Console rendu
+
+Students implement:
+  • Sous-classes de GameStageModel (game logic)
+  • Sous-classes de GameStageView (game visuals)
+  • Sous-classe de Controller (game loop and input)
+  • Optional: Custom elements, les actions, l'animations, AI
+  • Main entry point
+
+
+4. COUCHE MODEL - COMPORTEMENT DÉTAILLÉ
+================================================================================
+
+MACHINE D'ÉTAT DU JEU:
+
+États du modèle:
+  • INIT - Framework initialisé, aucun jeu démarré
+  • PLAY - Jeu en cours
+  • PAUSED - Jeu en pause
+  • ENDSTAGE - Étape actuelle complète
+  • ENDGAME - Jeu entier complété
+
+Transitions d'État:
+  INIT → PLAY (startGame)
+     ↓
+  PLAY ↔ PAUSED
+     ↓
+  ENDSTAGE (call nextStage) → PLAY (if more stages)
+                          OR → ENDGAME (if last stage)
+
+EXÉCUTION BASÉE SUR LES FRAMES:
+
+Chaque frame du jeu:
+  1. Controller.stageLoop() appelé
+  2. Input processed → les actions queued
+  3. ActionPlayer.update() executes queued les actions
+  4. Model.update() traite:
+     - Element.update sur chaque élément
+     - Animation.update() on each l'animation
+     - Traitement de la file d'événements
+  5. View.update() rend l'étape actuelle
+  6. Pause pour maintenir les FPS (frameGap)
+
+
+CYCLE DE VIE DE L'ÉLÉMENT:
+
+Création:
+  1. Créer un élément (new SpriteElement, new ContainerElement, etc.)
+  2. Ajouter à l'étape: gameStageModel.addElement(element)
+  3. Créer ElementLook dans GameStageView
+  4. Rendre via RootPane
+
+Update (chaque frame):
+  1. GameElement.update appelé
+  2. Process l'animations queued on element
+  3. Queue les événements if state changed
+  4. L'élément rend via ElementLook
+
+Suppression:
+  1. RemoveFromStageAction exécuté
+  2. gameStageModel.removeElement(element)
+  3. ElementLook supprimé
+  4. L'élément n'est plus rendu
+
+
+OPÉRATIONS DE CONTENEUR:
+
+Ajouter un élément au conteneur:
+  1. PutInContainerAction en file d'attente
+  2. containerElement.putElement(element, ligne, colonne) appelé
+  3. onPutInCallback invoqué
+  4. Événement en file d'attente
+  5. Element.idContainer défini
+  6. Position de l'élément synchronisée avec la grille du conteneur
+
+Déplacer dans le conteneur:
+  1. MoveWithinContainerAction en file d'attente
+  2. containerElement.moveElement(element, newRow, newCol) appelé
+  3. onMoveInCallback invoqué
+  4. Position mise à jour
+
+Retrait de conteneur:
+  1. RemoveFromContainerAction en file d'attente
+  2. containerElement.removeElement(element) appelé
+  3. onRemoveFromCallback invoqué
+  4. Element.idContainer réinitialisé
+
+
+5. COUCHE CONTROL - BOUCLE DE JEU ET COORDINATION
+================================================================================
+
+BOUCLE DE JEU PRINCIPALE (Controller.startGame()):
+
+while (modèle.isGameRunning()) {
+    // 1. Boucle d'étape (VOTRE IMPLÉMENTATION)
+    stageLoop();
+    
+    // 2. Mettre à jour l'état du jeu
+    modèle.update();
+    
+    // 3. Rendre
+    vue.update();
+    
+    // 4. Maintenir les FPS
+    sleep(frameGap - elapsedTime);
+}
+
+STAGELOOP() - OÙ VOUS ÉCRIVEZ VOTRE LOGIQUE DE JEU:
+
+Votre implémentation doit:
+  1. Détecter l'entrée de l'utilisateur (clavier, souris)
+  2. Convertir l'entrée en objets GameAction
+  3. Queue les actions via actionPlayer.addAction()
+  4. Le framework gère:
+     - Exécution d'action
+     - Mises à jour d'animation
+     - Mises à jour du modèle
+     - Rendreing
+  5. Appeler nextStage(stageName) pour changer d'étape
+  6. Appeler endGame() pour terminer le jeu
+
+DECIDER POUR LES JOUEURS IA:
+
+Le contrôleur appelle automatiquement Decider pour les joueurs de l'ordinateur:
+  - Player.getType == COMPUTER
+  - Decider.decide() appelé
+  - Retourne List<GameAction> pour le mouvement IA
+  - Les actions exécutées comme les mouvements des joueurs humains
+
+Paramétrage IA:
+  contrôleler.setDecider(new MyDecider());
+
+
+6. COUCHE VIEW - ARCHITECTURE DE RENDU
+================================================================================
+
+PIPELINE DE RENDU:
+
+1. View.update()
+   └─ Obtient le GameStageModel actuel
+   └─ Obtient la GameStageView actuelle (depuis StageFactory)
+   
+2. GameStageView.createElementLooks (si pas déjà créé)
+   └─ Pour chaque GameElement
+   └─ Créer la sous-classe ElementLook appropriée
+   
+3. Pour chaque élément de l'étape:
+   └─ Element.update (advance l'animations)
+   └─ Mettre à jour les propriétés ElementLook correspondantes
+   
+4. RootPane.show(gameStageView)
+   └─ For each ElementLook
+   └─ Get shape and colonneor
+   └─ Imprimer dans la grille de caractères à la position de l'élément
+   └─ Trier par z-order (profondeur)
+   
+5. RootPane.display()
+   └─ Effacer la console
+   └─ Imprimer la grille de caractères
+   └─ Curseur à l'origine
+
+
+APPARENCES D'ÉLÉMENTS ET VISUALISATION:
+
+Les sous-classes ElementLook déterminent l'apparence:
+  - ClassicBoardLook: Single character + colonneor (par ex., "♙" en blanc)
+  - GridLook: Grille de cellules (pour ContainerElement)
+  - TableLook: Format de tableau (pour ContainerElement)
+  - TextLook: Rendu de texte (pour TextElement)
+  - StaticLook: Image statique (non fourni)
+
+ElementLook personnalisé:
+  Créer une sous-classe personnalisée pour des apparences uniques
+  Exemple: Animé "◐◑◒◓" caractère rotatif
+
+
+SYSTÈME DE COORDONNÉES:
+
+  (0,0) ─────────────→ X
+    │
+    │
+    ↓
+    Y
+
+  Éléments positionnés par (x, y)
+  Les cellules ContainerElement sont positionnées par (ligne, colonne)
+
+
+7. MOTIFS DE CONCEPTION UTILISÉS
+================================================================================
+
+1. MVC (Modèle-Vue-Contrôleur)
+   - Séparation de l'état du jeu, rendu, and coordination
+
+2. Motif Factory
+   - StageFactory pour chargement d'étapes dynamique
+   - ActionFactory pour création d'actions dynamique
+   - StageElementsFactory pour création d'éléments
+
+3. Motif Stratégie
+   - Interface Decider pour IA enfichable
+   - Multiple Look subclasses for rendu
+
+4. Motif Composite
+   - GameHiérarchie d'éléments
+   - ActionList contient plusieurs GameActions
+
+5. Motif Observateur
+   - Les événements notifient les changements d'état
+   - Callbacks on action/l'animation completion
+
+6. Motif Commande
+   - GameAction encapsule les opérations de jeu
+   - ActionPlayer exécute la file de commandes
+
+7. Motif État
+   - Model maintains game state
+   - États d'animation (INIT, RUNNING, STOPPED)
+
+8. Motif Méthode de Modèle
+   - GameStageModel.createElements() abstrait method
+   - GameStageView.createElementLooks abstrait method
+   - Controller.stageLoop() abstrait method
+
+9. Motif Registre de Type
+   - ElementTypes pour IDs de type d'élément
+   - AnimationTypes for l'animation type IDs
+
+10. Motif Adaptateur
+    - ElementLook adapte GameElement for rendu
+
+11. Motif Callback
+    - ActionCallback, interfaces AnimationCallback
+    - ContainerOpCallback, SelectionCallback
+
+12. Motif Singleton
+    - Model agit comme conteneur d'état de jeu central
+    - Accédé globalement par les composants
+
+
+8. FLUX D'EXÉCUTION DU JEU
+================================================================================
+
+INITIALISATION:
+
+1. Créer une instance de Model
+2. Créer une instance de View (en passant Model)
+3. Create Sous-classe de Controller instance (en passant Model and View)
+4. Enregistrer toutes les étapes via StageFactory
+5. Call contrôleler.setFirstStageName("stageName")
+6. Call contrôleler.startGame()
+
+DÉMARRAGE D'ÉTAPE:
+
+1. Model.startGame(gameStageModel) appelé
+2. GameStageModel.createElements() exécuté
+3. GameStageView.createElementLooks executed
+4. Tous les éléments de jeu créés et rendus
+5. Boucle de jeu commence
+
+CHAQUE FRAME:
+
+1. Controller.stageLoop() appelé
+   - Traiter l'entrée
+   - Create les actions
+   - Mettre en file via actionPlayer
+   
+2. ActionPlayer.update()
+   - Execute queued les actions sequentially
+   - Invoquer les callbacks à l'achèvement
+   
+3. Model.update()
+   - GameElement.update sur chaque élément
+   - Process l'animations
+   - Process les événements
+   
+4. View.update()
+   - Rendre all elements
+   - Mettre à jour les ElementLooks
+   - Afficher à la console
+   
+5. Pause pour régulation FPS
+
+TRANSITION D'ÉTAPE:
+
+1. Controller.nextStage(stageName) appelé
+2. L'état du modèle change à ENDSTAGE
+3. GameStageView/Model actuel déchargé
+4. StageFactory.getModel/View() pour nouvelle étape
+5. Model.startGame(newStageModel) appelé
+6. La boucle continue avec la nouvelle étape
+
+FIN DU JEU:
+
+1. Controller.endGame() appelé
+2. L'état du modèle change à ENDGAME
+3. La boucle de jeu s'arrête
+4. Le programme se termine
+
+
+9. POINTS D'INTÉGRATION CLÉS POUR LES ÉTUDIANTS
+================================================================================
+
+REQUIRED OVERRIDES:
+
+1. Create GameStageModel subclass:
+   - Override createElements(StageElementsFactory factory)
+   - Add all game elements to stage
+   - Set up container callbacks si nécessaire
+
+2. Create GameStageView subclass:
+   - Override createElementLooks()
+   - Override createElementLook(GameElement)
+   - Create appropriate ElementLook for each element
+
+3. Create Sous-classe de Controller:
+   - Override stageLoop()
+   - Handle input (clavier, souris)
+   - Create and queue GameAction objects
+   - Call contrôleler.nextStage() or contrôleler.endGame()
+
+OPTIONAL EXTENSIONS:
+
+1. Sous-classes de GameElement personnalisées
+   - Override update() for special behavior
+   - Queue l'animations
+
+2. Custom GameAction subclasses
+   - Override execute() for game logic
+   - Set callbacks
+
+3. Custom Animation subclasses
+   - Extend Animation base class
+
+4. Custom Decider implementation
+   - Implement Decider interface
+   - Return List<GameAction> for AI
+
+5. Custom ElementLook subclasses
+   - Extend ElementLook
+   - Override rendu logic
+
+
+10. FLUX DE TRAVAIL COURANTS
+================================================================================
+
+WORKFLOW 1: CREATE A CHESS GAME
+
+1. Create ChessModel extends GameStageModel
+   - createElements(): Create 8x8 ContainerElement for board
+   - Create 16 SpriteElements for white pieces
+   - Create 16 SpriteElements for black pieces
+
+2. Create ChessView extends GameStageView
+   - createElementLooks(): Create GridLook for board
+   - Create ClassicBoardLook for each piece
+
+3. Create ChessController extends Controller
+   - stageLoop(): 
+     - Detect piece selection
+     - Get valid moves
+     - Detect move input
+     - Create MoveWithinContainerAction
+     - Check for game end (checkmate)
+     - Appeler endGame() or nextStage()
+
+4. Create ChessGame main class
+   - Register stages via StageFactory
+   - Create Model, View, Controller instances
+   - startGame()
+
+
+WORKFLOW 2: CREATE A DICE-BASED GAME
+
+1. Create GameModel extends GameStageModel
+   - createElements(): Create DiceElement, board, pieces
+
+2. Create GameView extends GameStageView
+   - createElementLooks(): Create looks for dice and pieces
+
+3. Create GameController extends Controller
+   - Detect roll dice input
+   - Create DrawDiceAction(diceElement, ...)
+   - Read dice value: diceElement.getValue()
+   - Create MoveWithinContainerAction with dice value
+   - Handle turn switching
+
+4. Create GameGame main class
+   - Register stages
+   - Create instances
+   - startGame()
+
+
+WORKFLOW 3: ADD AI TO GAME
+
+1. Create MyDecider implements Decider
+   - Override decide(GameStageModel, Player, List<GameAction>)
+   - Implement logique IA
+   - Return chosen action(s)
+
+2. In game main class
+   - contrôleler.setDecider(new MyDecider())
+
+3. Framework automatically:
+   - Calls decide() for COMPUTER players
+   - Queues returned les actions
+
+
+11. CONTRAINTES IMPORTANTES ET PIÈGES
+================================================================================
+
+CRITICAL CONSTRAINTS:
+
+1. NO MAIN METHOD PROVIDED
+   - Framework is library, not application
+   - Must create main class yourself
+   - Framework cannot run standalone
+
+2. STAGE REGISTRATION REQUIRED
+   - Must call StageFactory.registerModelAndView()
+   - BEFORE using stage
+   - Utilisez des noms de classe complètement qualifiés
+
+3. REFLECTION-BASED FACTORIES
+   - StageFactory, ActionFactory use reflection
+   - Classes must be on classpath
+   - Names must be exact and fully qualified
+   - Slow compared to direct instantiation (acceptable for game startup)
+
+4. FRAME-BASED TIMING
+   - All les actions/l'animations based on frame count
+   - Duration in milliseconds converted to frames
+   - FPS = 1000 / (frameGap in milliseconds)
+   - Default: 100 FPS (10ms per frame)
+
+5. ELEMENT POSITIONS
+   - Coordinate system: (0,0) haut-gauche
+   - RootPane has fixed size (console size)
+   - Elements outside bounds not rendered
+   - No automatic clipping or wrapping
+
+6. CONTAINER GRID
+   - ContainerElement must have ligne/colonne set
+   - Elements in container don't use x,y
+   - Container cell size not automatically scaled
+   - Manual position sync needed if moving container
+
+7. ANIMATION ORDERING
+   - Animations execute in order queued
+   - All l'animations run simultaneously on element
+   - Use ActionList for sequential l'animations
+   - Use callback to chain l'animations
+
+8. EVENT PROCESSING
+   - Events queued but not processed until next frame
+   - Callbacks executed during action execution
+   - No guaranteed event ordering if multiple sources
+   - Must check event queue explicitly
+
+9. CONSOLE RENDERING
+   - Limited to single-character glyphs
+   - No special fonts or styling beyond colonneor
+   - Console size limitations (typically 80x24)
+   - RootPane manages character grid
+
+10. MULTIPLE STAGES
+    - Each stage must have registered Model and View classes
+    - currentStageModel accessed via modèle.getGameStageModel()
+    - Switching stages is one-way per frame
+    - No branching stages (must use naming convention)
+
+COMMON PITFALLS:
+
+✗ Creating elements but not adding to stage
+✗ Creating elements but not creating ElementLook
+✗ Forgetting to call nextStage() → infinite loop
+✗ Not registering stages before using them
+✗ Using relative class names instead of fully qualified
+✗ Mixing x,y and ligne,colonne for container elements
+✗ Queuing same action multiple times (not cloning)
+✗ Not checking player type before assuming human input
+✗ Trying to run framework as standalone application
+
+
+12. CONSIDÉRATIONS DE PERFORMANCE
+================================================================================
+
+OPTIMIZATION TIPS:
+
+1. Minimize element count
+   - RootPane renders all visible elements chaque frame
+   - Performance degrades with 100+ elements
+
+2. Reuse elements instead of create/delete
+   - Creation/deletion queue les événements
+   - Just set visible=false for hidden elements
+
+3. Use simple ElementLooks
+   - ClassicBoardLook faster than custom
+   - Grid/Table looks slower for large grids
+
+4. Batch les actions
+   - ActionList executes faster than sequential queuing
+   - Reduces callback overhead
+
+5. Cache frequently accessed elements
+   - gameStageModel.getElement() searches list
+   - Store references when possible
+
+6. Disable event capture if unused
+   - modèle.setCaptureMouseEvent(false)
+   - modèle.setCaptureKeyEvent(false)
+
+7. Adjust FPS appropriately
+   - Lower FPS for turn-based games
+   - Higher FPS for real-time action
+
+BOTTLENECKS:
+
+⚠ RootPane rendu (console I/O slowest operation)
+⚠ StageFactory reflection (only at stage load)
+⚠ ActionFactory reflection (only at action creation)
+⚠ Large ContainerElement grids (N² complexity)
+⚠ Deep element hierarchies (rarely an issue)
+
+
+13. DÉBOGAGE ET TESTS
+================================================================================
+
+LOGGING:
+
+Use Logger utility:
+  Logger.log("Player selected piece at (10, 20)");
+  Logger.log("TURN", "Current player: " + modèle.getCurrentPlayer().getName());
+  Logger.enable() / Logger.disable()
+
+BREAKPOINTS:
+
+Key locations to set breakpoints:
+  - Controller.stageLoop() - game loop entry
+  - GameAction.execute() - action execution
+  - Animation.update() - l'animation progress
+  - GameElement.moveTo() - position changes
+  - ActionPlayer.update() - action queue processing
+
+VERIFICATION CHECKLIST:
+
+□ All stages registered before startGame()
+□ All GameElements added to stage in createElements()
+□ All GameElements have corresponding ElementLook in createElementLooks()
+□ ContainerElement grid size set correctly
+□ Actions properly queued (not executed directly)
+□ Animations properly queued on elements
+□ FPS/frameGap set appropriately
+□ Input properly detected and converted to les actions
+□ Callbacks properly set on les actions/l'animations
+□ Game end condition properly detected
+
+
+14. DÉPLOIEMENT
+================================================================================
+
+PACKAGING:
+
+1. Compile all source files
+   javac -d bin -cp lib/boardifier.jar src/**/*.java
+
+2. Create JAR
+   jar -cfe MyGame.jar game.MyGame -C bin . -C lib boardifier.jar
+
+3. Run
+   java -jar MyGame.jar
+
+DISTRIBUTION:
+
+Include:
+  - MyGame.jar (your compiled code)
+  - lib/boardifier.jar (framework library)
+  - README.txt (instructions)
+  - Source files (optionnel)
+
+
+15. SUJETS AVANCÉS
+================================================================================
+
+CUSTOM ELEMENTS:
+
+Create subclass of SpriteElement or StaticElement
+  - Override update() for special behavior
+  - Add custom attributes
+  - Queue l'animations in update()
+
+Exemple:
+  public class Projectile extends SpriteElement {
+      int speed = 5;
+      
+      @Override
+      public void update() {
+          super.update();
+          // Move projectile automatically
+          moveTo(getX() + speed, getY());
+      }
+  }
+
+CUSTOM ACTIONS:
+
+Create subclass of GameAction
+  - Override execute() for game logic
+  - Set callback for completion notification
+
+Exemple:
+  public class AttackAction extends GameAction {
+      SpriteElement attacker, target;
+      
+      @Override
+      public void execute() {
+          // Custom attack logic
+          // Queue l'animation
+          Animation anim = new LinearMoveAnimation(attacker, ...);
+          attacker.addAnimation(anim);
+      }
+  }
+
+CUSTOM LOOKS:
+
+Create subclass of ElementLook
+  - Override getShape() for character representation
+  - Override getColor() for colonneor
+
+Exemple:
+  public class AniméCharLook extends ElementLook {
+      char[] chars = {'◐', '◑', '◒', '◓'};
+      int frame = 0;
+      
+      @Override
+      public char getShape(int x, int y) {
+          return chars[frame % 4];
+      }
+  }
+
+MULTI-STAGE GAMES:
+
+Register multiple stages:
+  StageFactory.registerModelAndView("level1", ...);
+  StageFactory.registerModelAndView("level2", ...);
+  
+Call in stageLoop():
+  contrôleler.nextStage("level2");
+
+Framework handles transition automatically.
+
+
+================================================================================
+                              RÉSUMÉ POUR RÉFÉRENCE
+================================================================================
+
+BOARDIFIER AT A GLANCE:
+
+Type:           Java Framework (library, not application)
+Architecture:   MVC + Event-Driven + Factory Pattern
+Core Purpose:   Simplify board/sprite game development
+Target Games:   Turn-based, console-based games
+
+WHAT'S PROVIDED:
+  ✓ Complete Model/View/Control layers
+  ✓ Hiérarchie d'éléments and game object system
+  ✓ Action/Animation execution
+  ✓ Event system for reactive updates
+  ✓ Dynamic factory patterns for extensibility
+  ✓ Console rendu with colonneors
+
+WHAT YOU MUST DO:
+  ✗ Create GameStageModel for each level
+  ✗ Create GameStageView for each level
+  ✗ Create Controller for your game
+  ✗ Implement stageLoop() with your game logic
+  ✗ Create main() entry point
+  ✗ Enregistrez les étapes dans StageFactory
+  ✗ Handle input → convert to les actions → queue
+
+EXECUTION MODEL:
+  1. Framework calls contrôleler.stageLoop() chaque frame
+  2. You detect input and queue les actions
+  3. Framework executes les actions
+  4. Framework updates l'animations/les événements
+  5. Framework renders to console
+  6. Repeat
+
+KEY FILES:
+  - modèle/Model.java - Game state
+  - modèle/GameStageModel.java - YOUR stage logic
+  - vue/GameStageView.java - YOUR stage visuals
+  - contrôle/Controller.java - YOUR game loop
+  - vue/View.java - Système de rendu
+
+INTEGRATION CHECKLIST:
+  ☐ Extend GameStageModel
+  ☐ Extend GameStageView
+  ☐ Extend Controller
+  ☐ Register stages via StageFactory
+  ☐ Create main entry point
+  ☐ Implement stageLoop()
+  ☐ Test with simple example
+
+================================================================================
+                           FIN DE LA DOCUMENTATION
+================================================================================
+
+Document Version: 1.0
+Last Updated: May 4, 2026
+For questions, revue the class hierarchy diagrams and code comments in:
+  - STRUCTURAL_ANALYSIS.md
+  - CLASS_HIERARCHY_AND_REFERENCE.md
+  - DEVELOPER_GUIDE.md
+
+================================================================================
