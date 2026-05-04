@@ -1,9 +1,14 @@
-class Pion {
+import boardifier.model.GameElement;
+import boardifier.model.ElementTypes;
+import boardifier.model.GameStageModel;
+
+class Pion extends GameElement {
     private Couleur couleur;
     private Position pos;
     private int numero;
 
-    public Pion(Couleur couleur, int numero) {
+    public Pion(Couleur couleur, int numero, GameStageModel gameStageModel) {
+        super(gameStageModel, ElementTypes.getType("sprite"));
         this.numero = numero;
         this.couleur = couleur;
         this.pos = null;

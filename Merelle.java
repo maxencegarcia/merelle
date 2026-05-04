@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import boardifier.model.Model;
+import boardifier.view.View;
 // import java.awt.*;
 
 public class Merelle {
@@ -46,6 +48,9 @@ public class Merelle {
     }
 
     public static void lancer(int gm) {
+        // Model model = new Model();
+        // View view = new View(model);
+        // Jeu jeu = new Jeu(model, view);
         switch (gm) {
             case 1:
                 String np1 = askname(1);

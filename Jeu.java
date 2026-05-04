@@ -1,38 +1,79 @@
-class Jeu {
-    private Plateau plateau;
-    private Joueur joueur1;
-    private Joueur joueur2;
-    private Joueur joueurActuel;
-    private Phase phaseActuelle;
+import boardifier.control.Controller;
+import boardifier.model.Model;
+import boardifier.view.View;
+import boardifier.model.Player;
 
-    public Jeu(String j1, String j2) {
-        plateau = new Plateau();
-        joueur1 = new Joueur(j1, Couleur.BLANC, 9);
-        joueur2 = new Joueur(j2, Couleur.NOIR, 9);
-        joueurActuel = joueur1;
+class Jeu extends Controller {
+    private Plateau plateau;
+    // private Joueur joueur1;
+    // private Joueur joueur2;
+    // private Joueur joueurActuel;
+    private Phase phaseActuelle;
+    public Jeu(Model model, View view) {
+        // plateau = new Plateau();
+        //  = new Joueur(j1, Couleur.BLANC, 9);
+        // joueur2 = new Joueur(j2, Couleur.NOIR, 9);
+        // joueurActuel = joueur1;
+        // phaseActuelle = Phase.PLACE;
+        super(model, view);
         phaseActuelle = Phase.PLACE;
     }
+    public void setup(){
+        if (model.getGameStage() != null) {
+            plateau = new Plateau(model.getGameStage());
+            model.getGameStage().addContainer(plateau);
+        }
+    }
 
-    public void jouer() {
-        while (!estTermine()) {
-
+    @Override
+    public void stageLoop(){
+        while (!model.isEndGame()) {
+            if (estTermine()) {
+                stopGame();
+                break;
+            }
             if (phaseActuelle == Phase.PLACE) {
-
-            } else {
+                
+            }else {
 
             }
+
+            update();
         }
         afficherGagnant();
     }
 
+    // public void jouer() {
+    //     while (!estTermine()) {
+
+    //         if (phaseActuelle == Phase.PLACE) {
+
+    //         } else {
+
+    //         }
+    //     }
+    //     afficherGagnant();
+    // }
+
     public boolean estTermine() {
-        return phaseActuelle != Phase.PLACE && (joueur1.compterPions() < 3 || joueur2.compterPions() < 3);
+        if (model.getPlayers().size() < 2) {
+            return false;
+        }
+        Joueur j1 = (Joueur) model.getPlayers().get(0);
+        Joueur j2 = (Joueur) model.getPlayers().get(1);
+        return phaseActuelle != Phase.PLACE && (j1.compterPions() < 3 || j2.compterPions() < 3);
+    }
+
+    public void stopGame(){
+        model.stopGame();
     }
 
     public void afficherGagnant() {
-        if (joueur1.compterPions() < 3) {
+        Joueur j1 = (Joueur) model.getPlayers().get(0);
+        Joueur j2 = (Joueur) model.getPlayers().get(1);
+        if (j1.compterPions() < 3) {
             System.out.println("Joueur 2 gagnant");
-        } else if (joueur2.compterPions() < 3) {
+        } else if (j2.compterPions() < 3) {
             System.out.println("Joueur 1 gagnant");
         }
     }
