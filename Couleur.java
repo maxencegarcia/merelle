@@ -1,12 +1,4 @@
 public enum Couleur {
-    NOIR,
-    BLANC
+    BLANC,
+    NOIR
 }
-
-
-
-
-
-
-
-
