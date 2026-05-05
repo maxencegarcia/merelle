@@ -1,7 +1,8 @@
 import java.util.Scanner;
 import boardifier.model.Model;
 import boardifier.view.View;
-// import java.awt.*;
+import boardifier.control.StageFactory;
+import boardifier.model.GameException;
 
 public class Merelle {
     static final Scanner input = new Scanner(System.in);
@@ -51,6 +52,9 @@ public class Merelle {
         Model model = new Model();
         View view = new View(model);
         Jeu jeu = new Jeu(model, view);
+
+        StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
+
         switch (gm) {
             case 1:
                 String np1 = askname(1);
@@ -58,19 +62,29 @@ public class Merelle {
                 System.out.println("Player 1 = " + np1);
                 System.out.println("Player 2 = " + np2);
 
-                // Jeu jeu = new Jeu(np1, np2);
-                // jeu.jouer();
-                MerelleStageModel stageModel = new MerelleStageModel("main", model);
-                model.getPlayers().add(new Joueur(np1, Couleur.BLANC, 9, stageModel));
-                model.getPlayers().add(new Joueur(np1, Couleur.NOIR, 9, stageModel));
-                model.setGameStage(stageModel);
-                jeu.setup();
+                Joueur joueur1 = new Joueur(np1, Couleur.BLANC, 9, null);
+                Joueur joueur2 = new Joueur(np2, Couleur.NOIR, 9, null);
+
+                model.getPlayers().add(joueur1.getPlayer());
+                model.getPlayers().add(joueur2.getPlayer());
+
+                jeu.setFirstStageName("main");
+
+                try {
+                    jeu.startGame();
+                } catch (GameException e) {
+                    System.err.println("Erreur lors du démarrage du jeu : " + e.getMessage());
+                    e.printStackTrace();
+                    System.exit(1);
+                }
 
                 jeu.stageLoop();
                 break;
+
             case 2:
                 System.out.println("Player Vs Computer");
                 break;
+
             case 3:
                 System.out.println("Computer Vs Computer");
                 break;
