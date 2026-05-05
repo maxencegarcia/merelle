@@ -9,6 +9,6 @@ public class MerelleStageModel extends GameStageModel {
 
     @Override
     public StageElementsFactory getDefaultElementFactory() {
-        return null; // Not needed for simple console version
+        return null;
     }
 }

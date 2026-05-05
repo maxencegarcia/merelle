@@ -48,9 +48,9 @@ public class Merelle {
     }
 
     public static void lancer(int gm) {
-        // Model model = new Model();
-        // View view = new View(model);
-        // Jeu jeu = new Jeu(model, view);
+        Model model = new Model();
+        View view = new View(model);
+        Jeu jeu = new Jeu(model, view);
         switch (gm) {
             case 1:
                 String np1 = askname(1);
@@ -58,8 +58,15 @@ public class Merelle {
                 System.out.println("Player 1 = " + np1);
                 System.out.println("Player 2 = " + np2);
 
-                Jeu jeu = new Jeu(np1, np2);
-                jeu.jouer();
+                // Jeu jeu = new Jeu(np1, np2);
+                // jeu.jouer();
+                MerelleStageModel stageModel = new MerelleStageModel("main", model);
+                model.getPlayers().add(new Joueur(np1, Couleur.BLANC, 9, stageModel));
+                model.getPlayers().add(new Joueur(np1, Couleur.NOIR, 9, stageModel));
+                model.setGameStage(stageModel);
+                jeu.setup();
+
+                jeu.stageLoop();
                 break;
             case 2:
                 System.out.println("Player Vs Computer");
