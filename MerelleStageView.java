@@ -12,15 +12,14 @@ public class MerelleStageView extends GameStageView {
     public MerelleStageView(String name, GameStageModel gameStageModel) {
         super(name, gameStageModel);
     }
+    int u =0;
 
     @Override
     public void createLooks() throws GameException {
         for (GameElement element : gameStageModel.getElements()) {
             if (element instanceof ContainerElement) {
-                // For the plateau, use a GridLook
                 addLook(new GridLook(3, 3, (ContainerElement) element, 1, 1));
             } else if (element instanceof Pion) {
-                // For a Pion, create a simple look
                 addLook(new ElementLook(element, 1, 1, 1) {
                     @Override
                     public void render() {
@@ -30,5 +29,6 @@ public class MerelleStageView extends GameStageView {
                 });
             }
         }
+        
     }
 }

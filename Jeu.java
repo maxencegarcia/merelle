@@ -1,3 +1,5 @@
+import java.util.concurrent.TimeUnit;
+
 import boardifier.control.Controller;
 import boardifier.model.Model;
 import boardifier.view.View;
@@ -31,6 +33,7 @@ class Jeu extends Controller {
         }
     }
 
+    int u = 0;
     @Override
     public void stageLoop(){
         while (!model.isEndGame()) {
@@ -39,10 +42,20 @@ class Jeu extends Controller {
                 break;
             }
             if (phaseActuelle == Phase.PLACE) {
-
+                if (u==0) {
+                    System.out.println("Bienvenue dans la phase de placement le but est de placer ses pion et de former des moulin avant la phase de deplacement qui arriveras des que tout les pions auront été placer");
+                }
+                update();
+                try {
+                    TimeUnit.MINUTES.sleep(1);
+                } catch (InterruptedException e) {
+                    // Restaurer le statut d'interruption (bonne pratique)
+                    Thread.currentThread().interrupt();
+                }
             } else {
 
             }
+            u++;
             update();
         }
         afficherGagnant();
