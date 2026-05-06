@@ -62,15 +62,26 @@ public class Merelle {
                 System.out.println("Player 1 = " + np1);
                 System.out.println("Player 2 = " + np2);
 
-                Joueur joueur1 = new Joueur(np1, Couleur.BLANC, 9, null);
-                Joueur joueur2 = new Joueur(np2, Couleur.NOIR, 9, null);
+                MerelleStageModel stageModel = new MerelleStageModel("main", model);
+                Joueur joueur1 = new Joueur(np1, Couleur.BLANC, 9, stageModel);
+                Joueur joueur2 = new Joueur(np2, Couleur.NOIR, 9, stageModel);
 
-                model.getPlayers().add(joueur1.getPlayer());
-                model.getPlayers().add(joueur2.getPlayer());
+                model.getPlayers().add(joueur1);
+                model.getPlayers().add(joueur2);
+                model.setGameStage(stageModel);
+                jeu.setup();
+
+                for(Pion p : joueur1.getPions()) stageModel.addElement(p);
+                for(Pion p : joueur2.getPions()) stageModel.addElement(p);
+
 
                 jeu.setFirstStageName("main");
 
                 try {
+                    MerelleStageView stageView = new MerelleStageView("main", stageModel);
+                    stageView.createLooks();
+                    view.setView(stageView);
+                    // initialisation de la vue a faire
                     jeu.startGame();
                 } catch (GameException e) {
                     System.err.println("Erreur lors du démarrage du jeu : " + e.getMessage());

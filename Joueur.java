@@ -3,16 +3,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-class Joueur {
+class Joueur extends Player{
     private static final Map<Player, Joueur> registry = new HashMap<>();
 
-    private Player player;
+    // private Player player;
     private Couleur couleur;
     private Pion[] pions;
     private int pionsRestants;
 
     public Joueur(String nom, Couleur couleur, int nombrePions, boardifier.model.GameStageModel stageModel) {
-        this.player = Player.createHumanPlayer(nom);
+        // this.player = Player.createHumanPlayer(nom);
+        super(Player.HUMAN, nom);
         this.couleur = couleur;
         this.pions = new Pion[nombrePions];
         this.pionsRestants = nombrePions;
@@ -21,19 +22,19 @@ class Joueur {
             pions[i] = new Pion(couleur, i + 1, stageModel);
         }
 
-        registry.put(this.player, this);
+        // registry.put(this.player, this);
     }
 
-    public Player getPlayer() {
-        return this.player;
-    }
+    // public Player getPlayer() {
+    //     return this.player;
+    // }
 
     public static Joueur fromPlayer(Player p) {
         return registry.get(p);
     }
 
     public String getNom() {
-        return player.getName();
+        return name;
     }
 
     public Couleur getCouleur() {
@@ -43,6 +44,7 @@ class Joueur {
     public int getPionsRestants() {
         return pionsRestants;
     }
+    public Pion[] getPions() {return pions;}
 
     public Pion getPionNonPlace() {
         for (Pion pion : pions) {

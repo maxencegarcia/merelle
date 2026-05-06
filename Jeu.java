@@ -1,3 +1,4 @@
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import boardifier.control.Controller;
@@ -9,6 +10,8 @@ import boardifier.model.Player;
 class Jeu extends Controller {
     private Plateau plateau;
     private Phase phaseActuelle;
+    static final Scanner input = new Scanner(System.in);
+
 
     public Jeu(Model model, View view) {
         super(model, view);
@@ -17,7 +20,8 @@ class Jeu extends Controller {
 
     public void setup(){
         if (model.getGameStage() != null) {
-            plateau = (Plateau) model.getGameStage().getContainers().get(0);
+            plateau = new Plateau(model.getGameStage());
+            model.getGameStage().addContainer(plateau);
         }
     }
 
@@ -43,16 +47,24 @@ class Jeu extends Controller {
             }
             if (phaseActuelle == Phase.PLACE) {
                 if (u==0) {
-                    System.out.println("Bienvenue dans la phase de placement le but est de placer ses pion et de former des moulin avant la phase de deplacement qui arriveras des que tout les pions auront été placer");
+                    System.out.println("Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
                 }
+                playpose();
                 update();
-                try {
-                    TimeUnit.MINUTES.sleep(1);
-                } catch (InterruptedException e) {
-                    // Restaurer le statut d'interruption (bonne pratique)
-                    Thread.currentThread().interrupt();
-                }
-            } else {
+                // try {
+                //     TimeUnit.MINUTES.sleep(1);
+                // } catch (InterruptedException e) {
+                //     // Restaurer le statut d'interruption (bonne pratique)
+                //     Thread.currentThread().interrupt();
+                // }
+            } 
+            if (phaseActuelle == Phase.MOVE) {
+                playmove();
+            }
+            if (phaseActuelle == Phase.STEAL) {
+                playsteal();
+            }
+            else {
 
             }
             u++;
@@ -83,4 +95,26 @@ class Jeu extends Controller {
             System.out.println("Joueur 1 gagnant");
         }
     }
+    public void playpose(){
+        Joueur joueur = (Joueur) model.getCurrentPlayer();
+        System.out.println("its time for " + joueur.getNom() + " to play");
+        Position pos = askPosition();
+    }
+    public void playmove(){
+
+    }
+    public void playsteal(){
+
+    }
+
+
+
+    private Position askPosition() {
+        System.out.print("Ligne (0-7) : ");
+        int x = input.nextInt();
+        System.out.print("Colonne (0-2) : ");
+        int y = input.nextInt();
+        return new Position(x, y);
+    }
+
 }
