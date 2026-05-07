@@ -82,7 +82,8 @@ public class Merelle {
                     stageView.createLooks();
                     view.setView(stageView);
                     // initialisation de la vue a faire
-                    jeu.startGame();
+                    // jeu.startGame();
+                    jeu.initlook();
                 } catch (GameException e) {
                     System.err.println("Erreur lors du démarrage du jeu : " + e.getMessage());
                     e.printStackTrace();

@@ -17,6 +17,7 @@ class Jeu extends Controller {
     public Jeu(Model model, View view) {
         super(model, view);
         phaseActuelle = Phase.PLACE;
+        this.mapElementLook = new java.util.HashMap<>();
     }
 
     public void setup(){
@@ -146,6 +147,15 @@ class Jeu extends Controller {
         System.out.print("Colonne (0-2) : ");
         int y = input.nextInt();
         return new Position(x, y);
+    }
+    public void initlook(){
+        if (view.getGameStageView() == null) {
+            return;
+        }
+        mapElementLook.clear();
+        for(boardifier.model.GameElement element : model.getGameStage().getElements()){
+            mapElementLook.put(element, view.getElementLook(element));
+        }
     }
 
 }
