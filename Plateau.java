@@ -20,7 +20,8 @@ class Plateau extends ContainerElement {
         if (!estValide(pos)) return false;
         // int index = pos.getX() + (pos.getY() * 8);
         // return this.place[index] == 0;
-        return isElementAt(pos.getX(), pos.getY());
+        // return isElementAt(pos.getX(), pos.getY());
+        return isEmptyAt(pos.getX(), pos.getY());
     }
 
     public void placerPion(Pion pion, Position pos) {

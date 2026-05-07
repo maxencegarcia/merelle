@@ -10,6 +10,7 @@ import boardifier.model.Player;
 class Jeu extends Controller {
     private Plateau plateau;
     private Phase phaseActuelle;
+    private Phase phasePrecedente;
     static final Scanner input = new Scanner(System.in);
 
 
@@ -50,7 +51,7 @@ class Jeu extends Controller {
                     System.out.println("Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
                 }
                 playpose();
-                update();
+                // update();
                 // try {
                 //     TimeUnit.MINUTES.sleep(1);
                 // } catch (InterruptedException e) {
@@ -63,6 +64,7 @@ class Jeu extends Controller {
             }
             if (phaseActuelle == Phase.STEAL) {
                 playsteal();
+                phaseActuelle = phasePrecedente;
             }
             else {
 
@@ -99,6 +101,27 @@ class Jeu extends Controller {
         Joueur joueur = (Joueur) model.getCurrentPlayer();
         System.out.println("its time for " + joueur.getNom() + " to play");
         Position pos = askPosition();
+        
+        if (plateau.estVide(pos)) {
+            Pion pion = joueur.getPionNonPlace();
+            if (pion != null) {
+                plateau.placerPion(pion, pos);
+            }
+            if (estUnMoulin(pos, joueur.getCouleur())) {
+                phasePrecedente = Phase.PLACE;
+                phaseActuelle = Phase.STEAL;
+            } else{
+                model.setNextPlayer();
+                // Joueur j1 = (Joueur) model.getPlayers().get(0);
+                Joueur j2 = (Joueur) model.getPlayers().get(1);
+                if (j2.getPionsRestants() == 0) {
+                    phaseActuelle = Phase.MOVE;
+                }
+            }
+        }
+        else{
+            System.out.println("pos invalide");
+        }
     }
     public void playmove(){
 
@@ -107,7 +130,15 @@ class Jeu extends Controller {
 
     }
 
-
+    private boolean estUnMoulin(Position pos, Couleur couleur) {
+        int x = pos.getX();
+        int y = pos.getY();
+        // for ?
+        if (x%2 != 0) {
+            
+        }
+        return false;
+    }
 
     private Position askPosition() {
         System.out.print("Ligne (0-7) : ");
