@@ -142,11 +142,39 @@ class Jeu extends Controller {
     }
 
     private Position askPosition() {
-        System.out.print("Ligne (0-7) : ");
-        int x = input.nextInt();
-        System.out.print("Colonne (0-2) : ");
-        int y = input.nextInt();
+        // System.out.print("Ligne (0-7) : ");
+        // int x = input.nextInt();
+        // System.out.print("Colonne (0-2) : ");
+        // int y = input.nextInt();
+        // return new Position(x, y);
+        int x = -1;
+        int y = -1;
+        boolean valide =false;
+        System.out.print("Entrez la position (ligne 0-7, colonne 0-2) : ");
+        String enter = input.next();
+        while (!valide) {
+            if (enter.length() == 2) {
+                char c1 = enter.charAt(0);
+                char c2 = enter.charAt(1);
+
+                if (Character.isDigit(c1) && Character.isDigit(c2)) {
+                    x = Character.getNumericValue(c1);
+                    y = Character.getNumericValue(c2);
+                    if (x >= 0 && x <= 7 && y >= 0 && y <= 2) {
+                        valide = true;
+                    }
+                }
+
+            }
+
+            if (!valide) {
+                System.out.println("Entrée invalide. Format attendu: LC (ex: 12 pour ligne 1, col 2) avec L:0-7 et C:0-2.");
+            }
+        }
+        System.out.println("ligne = " + x);
+        System.out.println("colonne = " + y);
         return new Position(x, y);
+        
     }
     public void initlook(){
         if (view.getGameStageView() == null) {
