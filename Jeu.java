@@ -12,8 +12,7 @@ class Jeu extends Controller {
     private Phase phaseActuelle;
     private Phase phasePrecedente;
     private Scanner scanner;
-    static final Scanner input = new Scanner(System.in);
-
+    // static final Scanner input = new Scanner(System.in);
 
     public Jeu(Model model, View view, Scanner scanner) {
         super(model, view);
@@ -22,7 +21,7 @@ class Jeu extends Controller {
         this.mapElementLook = new java.util.HashMap<>();
     }
 
-    public void setup(){
+    public void setup() {
         if (model.getGameStage() != null) {
             plateau = new Plateau(model.getGameStage());
             model.getGameStage().addContainer(plateau);
@@ -42,34 +41,35 @@ class Jeu extends Controller {
     }
 
     int u = 0;
+
     @Override
-    public void stageLoop(){
+    public void stageLoop() {
         while (!model.isEndGame()) {
             if (estTermine()) {
                 stopGame();
                 break;
             }
             if (phaseActuelle == Phase.PLACE) {
-                if (u==0) {
-                    System.out.println("Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
+                if (u == 0) {
+                    System.out.println(
+                            "Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
                 }
                 playpose();
                 // update();
                 // try {
-                //     TimeUnit.MINUTES.sleep(1);
+                // TimeUnit.MINUTES.sleep(1);
                 // } catch (InterruptedException e) {
-                //     // Restaurer le statut d'interruption (bonne pratique)
-                //     Thread.currentThread().interrupt();
+                // // Restaurer le statut d'interruption (bonne pratique)
+                // Thread.currentThread().interrupt();
                 // }
-            } 
+            }
             if (phaseActuelle == Phase.MOVE) {
                 playmove();
             }
             if (phaseActuelle == Phase.STEAL) {
                 playsteal();
                 phaseActuelle = phasePrecedente;
-            }
-            else {
+            } else {
 
             }
             u++;
@@ -87,7 +87,7 @@ class Jeu extends Controller {
         return phaseActuelle != Phase.PLACE && (j1.compterPions() < 3 || j2.compterPions() < 3);
     }
 
-    public void stopGame(){
+    public void stopGame() {
         model.stopGame();
     }
 
@@ -100,11 +100,12 @@ class Jeu extends Controller {
             System.out.println("Joueur 1 gagnant");
         }
     }
-    public void playpose(){
+
+    public void playpose() {
         Joueur joueur = (Joueur) model.getCurrentPlayer();
         System.out.println("its time for " + joueur.getNom() + " to play");
         Position pos = askPosition();
-        
+
         if (plateau.estVide(pos)) {
             Pion pion = joueur.getPionNonPlace();
             if (pion != null) {
@@ -113,7 +114,7 @@ class Jeu extends Controller {
             if (estUnMoulin(pos, joueur.getCouleur())) {
                 phasePrecedente = Phase.PLACE;
                 phaseActuelle = Phase.STEAL;
-            } else{
+            } else {
                 model.setNextPlayer();
                 // Joueur j1 = (Joueur) model.getPlayers().get(0);
                 Joueur j2 = (Joueur) model.getPlayers().get(1);
@@ -121,12 +122,12 @@ class Jeu extends Controller {
                     phaseActuelle = Phase.MOVE;
                 }
             }
-        }
-        else{
+        } else {
             System.out.println("pos invalide");
         }
     }
-    public void playmove(){
+
+    public void playmove() {
         Joueur joueur = (Joueur) model.getCurrentPlayer();
         System.out.println("its time for " + joueur.getNom() + " to play");
         System.out.println("Source : ");
@@ -134,12 +135,12 @@ class Jeu extends Controller {
         System.out.println("destination");
         Position dest = askPosition();
 
-        Pion pion =plateau.getPion(source);
+        Pion pion = plateau.getPion(source);
         if (pion != null && pion.getCouleur() == joueur.getCouleur() && plateau.estVide(dest)) {
             Boolean canmove = false;
             if (joueur.compterPions() == 3) {
                 canmove = true;
-            }else if (sontcollé(source, dest)) {
+            } else if (sontcollé(source, dest)) {
                 canmove = true;
             }
             if (canmove) {
@@ -150,15 +151,16 @@ class Jeu extends Controller {
                 } else {
                     model.setNextPlayer();
                 }
-            
-            }else {
+
+            } else {
                 System.out.println("mouve non collé");
             }
         } else {
             System.out.println("move invalide");
         }
     }
-    public void playsteal(){
+
+    public void playsteal() {
 
     }
 
@@ -166,9 +168,9 @@ class Jeu extends Controller {
         int x = pos.getX();
         int y = pos.getY();
         // for ?
-        if (x%2 != 0) {
+        if (x % 2 != 0) {
             if (checklinecross(x, couleur)) {
-                
+
             }
         }
         return false;
@@ -182,10 +184,12 @@ class Jeu extends Controller {
         // return new Position(x, y);
         int x = -1;
         int y = -1;
-        boolean valide =false;
+        boolean valide = false;
         System.out.print("Entrez la position (ligne 0-7, colonne 0-2) : ");
-        String enter = input.next();
+        // String enter = input.next();
         while (!valide) {
+            if (!scanner.hasNext()) System.exit(0);
+            String enter = scanner.next();
             if (enter.length() == 2) {
                 char c1 = enter.charAt(0);
                 char c2 = enter.charAt(1);
@@ -201,40 +205,44 @@ class Jeu extends Controller {
             }
 
             if (!valide) {
-                System.out.println("Entrée invalide. Format attendu: LC (ex: 12 pour ligne 1, col 2) avec L:0-7 et C:0-2.");
+                System.out.println(
+                        "Entrée invalide. Format attendu: LC (ex: 12 pour ligne 1, col 2) avec L:0-7 et C:0-2.");
             }
         }
         System.out.println("ligne = " + x);
         System.out.println("colonne = " + y);
         return new Position(x, y);
-        
+
     }
-    public void initlook(){
+
+    public void initlook() {
         if (view.getGameStageView() == null) {
             return;
         }
         mapElementLook.clear();
-        for(boardifier.model.GameElement element : model.getGameStage().getElements()){
+        for (boardifier.model.GameElement element : model.getGameStage().getElements()) {
             mapElementLook.put(element, view.getElementLook(element));
         }
     }
-    public boolean sontcollé(Position p1, Position p2){
-        int x = p1.getX(), y = p1.getY(), x2 = p2.getX(), y2=p2.getY();
+
+    public boolean sontcollé(Position p1, Position p2) {
+        int x = p1.getX(), y = p1.getY(), x2 = p2.getX(), y2 = p2.getY();
 
         if (y == y2) {
-            int diff = Math.abs(x-x2);
-            return diff ==1 || diff ==7;
-        }else if (x==x2) {
+            int diff = Math.abs(x - x2);
+            return diff == 1 || diff == 7;
+        } else if (x == x2) {
             return Math.abs(y - y2) == 1 && x % 2 != 0;
         }
         return false;
     }
 
-    private boolean checklinecross(int x, Couleur c){
+    private boolean checklinecross(int x, Couleur c) {
         Pion p1 = plateau.getPion(new Position(x, 0));
         Pion p2 = plateau.getPion(new Position(x, 1));
         Pion p3 = plateau.getPion(new Position(x, 2));
-        return p1 != null && p1.getCouleur() == c && p2 != null && p2.getCouleur() == c &&p3 != null && p3.getCouleur() == c;
+        return p1 != null && p1.getCouleur() == c && p2 != null && p2.getCouleur() == c && p3 != null
+                && p3.getCouleur() == c;
     }
 
 }

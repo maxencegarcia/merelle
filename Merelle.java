@@ -22,6 +22,10 @@ public class Merelle {
         System.out.println("Computer Versus Computer (3)");
 
         while (!valide) {
+            if (!input.hasNext()) {
+                System.out.println("End of input stream. Exiting.");
+                System.exit(0);
+            }
             if (input.hasNextInt()) {
                 gm = input.nextInt();
                 input.nextLine();
