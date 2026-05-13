@@ -51,7 +51,7 @@ public class Merelle {
     public static void lancer(int gm) {
         Model model = new Model();
         View view = new View(model);
-        Jeu jeu = new Jeu(model, view);
+        Jeu jeu = new Jeu(model, view, input);
 
         StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
 

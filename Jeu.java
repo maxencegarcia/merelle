@@ -11,12 +11,14 @@ class Jeu extends Controller {
     private Plateau plateau;
     private Phase phaseActuelle;
     private Phase phasePrecedente;
+    private Scanner scanner;
     static final Scanner input = new Scanner(System.in);
 
 
-    public Jeu(Model model, View view) {
+    public Jeu(Model model, View view, Scanner scanner) {
         super(model, view);
         phaseActuelle = Phase.PLACE;
+        this.scanner = scanner;
         this.mapElementLook = new java.util.HashMap<>();
     }
 
@@ -125,7 +127,36 @@ class Jeu extends Controller {
         }
     }
     public void playmove(){
+        Joueur joueur = (Joueur) model.getCurrentPlayer();
+        System.out.println("its time for " + joueur.getNom() + " to play");
+        System.out.println("Source : ");
+        Position source = askPosition();
+        System.out.println("destination");
+        Position dest = askPosition();
 
+        Pion pion =plateau.getPion(source);
+        if (pion != null && pion.getCouleur() == joueur.getCouleur() && plateau.estVide(dest)) {
+            Boolean canmove = false;
+            if (joueur.compterPions() == 3) {
+                canmove = true;
+            }else if (sontcollé(source, dest)) {
+                canmove = true;
+            }
+            if (canmove) {
+                plateau.deplacerPion(pion, source, dest);
+                if (estUnMoulin(dest, joueur.getCouleur())) {
+                    phasePrecedente = Phase.MOVE;
+                    phaseActuelle = Phase.STEAL;
+                } else {
+                    model.setNextPlayer();
+                }
+            
+            }else {
+                System.out.println("mouve non collé");
+            }
+        } else {
+            System.out.println("move invalide");
+        }
     }
     public void playsteal(){
 
@@ -136,7 +167,9 @@ class Jeu extends Controller {
         int y = pos.getY();
         // for ?
         if (x%2 != 0) {
-            
+            if (checklinecross(x, couleur)) {
+                
+            }
         }
         return false;
     }
@@ -184,6 +217,24 @@ class Jeu extends Controller {
         for(boardifier.model.GameElement element : model.getGameStage().getElements()){
             mapElementLook.put(element, view.getElementLook(element));
         }
+    }
+    public boolean sontcollé(Position p1, Position p2){
+        int x = p1.getX(), y = p1.getY(), x2 = p2.getX(), y2=p2.getY();
+
+        if (y == y2) {
+            int diff = Math.abs(x-x2);
+            return diff ==1 || diff ==7;
+        }else if (x==x2) {
+            return Math.abs(y - y2) == 1 && x % 2 != 0;
+        }
+        return false;
+    }
+
+    private boolean checklinecross(int x, Couleur c){
+        Pion p1 = plateau.getPion(new Position(x, 0));
+        Pion p2 = plateau.getPion(new Position(x, 1));
+        Pion p3 = plateau.getPion(new Position(x, 2));
+        return p1 != null && p1.getCouleur() == c && p2 != null && p2.getCouleur() == c &&p3 != null && p3.getCouleur() == c;
     }
 
 }
