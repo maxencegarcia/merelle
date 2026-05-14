@@ -5,21 +5,20 @@ import boardifier.model.ContainerElement;
 import boardifier.model.GameElement;
 import boardifier.model.GameException;
 import boardifier.model.GameStageModel;
-import boardifier.control.StageFactory;
 
 public class MerelleStageView extends GameStageView {
 
     public MerelleStageView(String name, GameStageModel gameStageModel) {
         super(name, gameStageModel);
     }
-    int u =0;
 
     @Override
     public void createLooks() throws GameException {
         for (GameElement element : gameStageModel.getElements()) {
-            if (element instanceof ContainerElement) {
+            if (element instanceof Plateau) {
                 addLook(new GridLook(3, 3, (ContainerElement) element, 1, 1));
-            } else if (element instanceof Pion) {
+            }
+            else if (element instanceof Pion) {
                 addLook(new ElementLook(element, 1, 1, 1) {
                     @Override
                     public void render() {
@@ -29,6 +28,5 @@ public class MerelleStageView extends GameStageView {
                 });
             }
         }
-        
     }
 }

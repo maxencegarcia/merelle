@@ -82,8 +82,9 @@ class Jeu extends Controller {
         if (model.getPlayers().size() < 2) {
             return false;
         }
-        Joueur j1 = Joueur.fromPlayer(model.getPlayers().get(0));
-        Joueur j2 = Joueur.fromPlayer(model.getPlayers().get(1));
+        Joueur j1 = (Joueur) model.getPlayers().get(0);
+        Joueur j2 = (Joueur) model.getPlayers().get(1);
+
         return phaseActuelle != Phase.PLACE && (j1.compterPions() < 3 || j2.compterPions() < 3);
     }
 
@@ -92,12 +93,13 @@ class Jeu extends Controller {
     }
 
     public void afficherGagnant() {
-        Joueur j1 = Joueur.fromPlayer(model.getPlayers().get(0));
-        Joueur j2 = Joueur.fromPlayer(model.getPlayers().get(1));
+        Joueur j1 = (Joueur) model.getPlayers().get(0);
+        Joueur j2 = (Joueur) model.getPlayers().get(1);
+
         if (j1.compterPions() < 3) {
-            System.out.println("Joueur 2 gagnant");
+            System.out.println("Player 2 win");
         } else if (j2.compterPions() < 3) {
-            System.out.println("Joueur 1 gagnant");
+            System.out.println("Player 1 win");
         }
     }
 
@@ -161,19 +163,68 @@ class Jeu extends Controller {
     }
 
     public void playsteal() {
+        Joueur joueurActuel = (Joueur) model.getCurrentPlayer();
 
+        int idAdversaire = (model.getIdPlayer() + 1) % 2;
+        Joueur adversaire = (Joueur) model.getPlayers().get(idAdversaire);
+
+        System.out.println("mill ! " + joueurActuel.getNom() + ", choose a pawn from" + adversaire.getNom() + " to retrieve.");
+
+        boolean volReussi = false;
+        while (!volReussi) {
+            Position pos = askPosition();
+
+            if (CanBeStolen(pos, adversaire.getCouleur())) {
+                Pion victime = plateau.getPion(pos);
+                plateau.retirerPion(pos);
+                adversaire.retirerPion(victime);
+
+                System.out.println("Pion retiré en " + pos.getX() + pos.getY());
+                volReussi = true;
+                model.setNextPlayer();
+                Joueur prochainJoueur = (Joueur) model.getCurrentPlayer();
+                if (phasePrecedente == Phase.PLACE) {
+                    Joueur j1 = (Joueur) model.getPlayers().get(0);
+                    Joueur j2 = (Joueur) model.getPlayers().get(1);
+                    if (j1.getPionsRestants() == 0 && j2.getPionsRestants() == 0) {
+                        phasePrecedente = Phase.MOVE;
+                    }
+                }
+            } else {
+                System.out.println("You can't steal this, invalide target, mill protected pawn or yours.");
+            }
+        }
     }
 
     private boolean estUnMoulin(Position pos, Couleur couleur) {
         int x = pos.getX();
         int y = pos.getY();
-        // for ?
-        if (x % 2 != 0) {
-            if (checklinecross(x, couleur)) {
-
-            }
+        // extrémité gauche
+        if (isColor(x, y, couleur) && isColor((x+1)%8, y, couleur) && isColor((x+2)%8, y, couleur)) {
+            return true;
         }
+
+        //milieu
+        if (isColor((x-1+8)%8, y, couleur) && isColor(x, y, couleur) && isColor((x+1)%8, y, couleur)) {
+            return true;
+        }
+
+        //extrémité droite
+        if (isColor((x-2+8)%8, y, couleur) && isColor((x-1+8)%8, y, couleur) && isColor(x, y, couleur)) {
+            return true;
+        }
+
+        // pont
+        if (x % 2 != 0) {
+            return isColor(x, 0, couleur) && isColor(x, 1, couleur) && isColor(x, 2, couleur);
+        }
+
         return false;
+    }
+
+    private boolean isColor(int x, int y, Couleur c) {
+        Pion p = plateau.getPion(new Position(x, y));
+        return p != null && p.getCouleur() == c;
     }
 
     private Position askPosition() {
@@ -237,12 +288,35 @@ class Jeu extends Controller {
         return false;
     }
 
-    private boolean checklinecross(int x, Couleur c) {
-        Pion p1 = plateau.getPion(new Position(x, 0));
-        Pion p2 = plateau.getPion(new Position(x, 1));
-        Pion p3 = plateau.getPion(new Position(x, 2));
-        return p1 != null && p1.getCouleur() == c && p2 != null && p2.getCouleur() == c && p3 != null
-                && p3.getCouleur() == c;
+//    private boolean checklinecross(int x, Couleur c) {
+//        Pion p1 = plateau.getPion(new Position(x, 0));
+//        Pion p2 = plateau.getPion(new Position(x, 1));
+//        Pion p3 = plateau.getPion(new Position(x, 2));
+//        return p1 != null && p1.getCouleur() == c && p2 != null && p2.getCouleur() == c && p3 != null
+//                && p3.getCouleur() == c;
+//    }
+
+
+
+    public boolean CanBeStolen(Position pos, Couleur couleurAdverse) {
+        Pion pion = plateau.getPion(pos);
+        if (pion == null || pion.getCouleur() != couleurAdverse) return false;
+        if (!estUnMoulin(pos, couleurAdverse)) return true;
+        Joueur adversaire = (Joueur) model.getPlayers().get((model.getIdPlayer() + 1) % 2);
+        return EveryPawnInMill(adversaire);
+    }
+
+    private boolean EveryPawnInMill(Joueur j) {
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 8; x++) {
+                Position p = new Position(x, y);
+                Pion pion = plateau.getPion(p);
+                if (pion != null && pion.getCouleur() == j.getCouleur()) {
+                    if (!estUnMoulin(p, j.getCouleur())) return false;
+                }
+            }
+        }
+        return true;
     }
 
 }

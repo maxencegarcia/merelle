@@ -48,7 +48,7 @@ class Joueur extends Player{
 
     public Pion getPionNonPlace() {
         for (Pion pion : pions) {
-            if (!pion.estPlace()) {
+            if (pion != null && !pion.estPlace()) {
                 pionsRestants--;
                 return pion;
             }
@@ -59,8 +59,19 @@ class Joueur extends Player{
     public int compterPions() {
         int count = 0;
         for (Pion pion : pions) {
-            if (pion.estPlace()) count++;
+            if (pion != null && pion.estPlace()) {
+                count++;
+            }
         }
         return count;
+    }
+
+    public void retirerPion(Pion victime) {
+        for (int i = 0; i < pions.length; i++) {
+            if (pions[i] == victime) {
+                pions[i] = null;
+                return;
+            }
+        }
     }
 }
