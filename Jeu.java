@@ -63,10 +63,10 @@ class Jeu extends Controller {
                 // Thread.currentThread().interrupt();
                 // }
             }
-            if (phaseActuelle == Phase.MOVE) {
+            else if (phaseActuelle == Phase.MOVE) {
                 playmove();
             }
-            if (phaseActuelle == Phase.STEAL) {
+            else if (phaseActuelle == Phase.STEAL) {
                 playsteal();
                 phaseActuelle = phasePrecedente;
             } else {
@@ -105,7 +105,11 @@ class Jeu extends Controller {
 
     public void playpose() {
         Joueur joueur = (Joueur) model.getCurrentPlayer();
-        System.out.println("its time for " + joueur.getNom() + " to play");
+        Character paw;
+        if (joueur.getCouleur() == Couleur.BLANC) {
+            paw = 'W';
+        }else paw = 'B';
+        System.out.println("its time for " + joueur.getNom() + " to play the pose phase your pawn is " + paw);
         Position pos = askPosition();
 
         if (plateau.estVide(pos)) {
@@ -118,9 +122,9 @@ class Jeu extends Controller {
                 phaseActuelle = Phase.STEAL;
             } else {
                 model.setNextPlayer();
-                // Joueur j1 = (Joueur) model.getPlayers().get(0);
+                Joueur j1 = (Joueur) model.getPlayers().get(0);
                 Joueur j2 = (Joueur) model.getPlayers().get(1);
-                if (j2.getPionsRestants() == 0) {
+                if (j2.getPionsRestants() == 0 && j1.getPionsRestants() == 0) {
                     phaseActuelle = Phase.MOVE;
                 }
             }
@@ -131,7 +135,11 @@ class Jeu extends Controller {
 
     public void playmove() {
         Joueur joueur = (Joueur) model.getCurrentPlayer();
-        System.out.println("its time for " + joueur.getNom() + " to play");
+        Character paw;
+        if (joueur.getCouleur() == Couleur.BLANC) {
+            paw = 'W';
+        }else paw = 'B';
+        System.out.println("its time for " + joueur.getNom() + " to play the move phase your pawn is " + paw);
         System.out.println("Source : ");
         Position source = askPosition();
         System.out.println("destination");
@@ -187,8 +195,12 @@ class Jeu extends Controller {
                     Joueur j1 = (Joueur) model.getPlayers().get(0);
                     Joueur j2 = (Joueur) model.getPlayers().get(1);
                     if (j1.getPionsRestants() == 0 && j2.getPionsRestants() == 0) {
-                        phasePrecedente = Phase.MOVE;
+                        phaseActuelle = Phase.MOVE;
+                    } else {
+                        phaseActuelle = Phase.PLACE;
                     }
+                } else {
+                    phaseActuelle = Phase.MOVE;
                 }
             } else {
                 System.out.println("You can't steal this, invalide target, mill protected pawn or yours.");
