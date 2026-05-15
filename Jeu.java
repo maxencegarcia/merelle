@@ -12,6 +12,8 @@ class Jeu extends Controller {
     private Phase phaseActuelle;
     private Phase phasePrecedente;
     private Scanner scanner;
+    private StrategieMoulinIA ia;
+
     // static final Scanner input = new Scanner(System.in);
 
     public Jeu(Model model, View view, Scanner scanner) {
@@ -19,12 +21,14 @@ class Jeu extends Controller {
         phaseActuelle = Phase.PLACE;
         this.scanner = scanner;
         this.mapElementLook = new java.util.HashMap<>();
+        
     }
 
     public void setup() {
         if (model.getGameStage() != null) {
             plateau = new Plateau(model.getGameStage());
             model.getGameStage().addContainer(plateau);
+            ia = new StrategieMoulinIA(plateau, this);
         }
     }
 
@@ -208,7 +212,7 @@ class Jeu extends Controller {
         }
     }
 
-    private boolean estUnMoulin(Position pos, Couleur couleur) {
+    public boolean estUnMoulin(Position pos, Couleur couleur) {
         int x = pos.getX();
         int y = pos.getY();
         // extrémité gauche
