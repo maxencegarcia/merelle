@@ -58,6 +58,8 @@ public class Merelle {
         Jeu jeu = new Jeu(model, view, input);
 
         StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
+        MerelleStageModel stageModel = new MerelleStageModel("main", model);
+        Joueur joueur1, joueur2;
 
         switch (gm) {
             case 1:
@@ -66,45 +68,51 @@ public class Merelle {
                 System.out.println("Player 1 = " + np1);
                 System.out.println("Player 2 = " + np2);
 
-                MerelleStageModel stageModel = new MerelleStageModel("main", model);
-                Joueur joueur1 = new Joueur(np1, Couleur.BLANC, 9, stageModel);
-                Joueur joueur2 = new Joueur(np2, Couleur.NOIR, 9, stageModel);
+                joueur1 = new Joueur(np1, Couleur.BLANC, 9, stageModel);
+                joueur2 = new Joueur(np2, Couleur.NOIR, 9, stageModel);
 
-                model.getPlayers().add(joueur1);
-                model.getPlayers().add(joueur2);
-                model.setGameStage(stageModel);
-                jeu.setup();
-
-                for(Pion p : joueur1.getPions()) stageModel.addElement(p);
-                for(Pion p : joueur2.getPions()) stageModel.addElement(p);
-
-
-                jeu.setFirstStageName("main");
-
-                try {
-                    MerelleStageView stageView = new MerelleStageView("main", stageModel);
-                    stageView.createLooks();
-                    view.setView(stageView);
-                    // initialisation de la vue a faire
-                    // jeu.startGame();
-                    jeu.initlook();
-                } catch (GameException e) {
-                    System.err.println("Erreur lors du démarrage du jeu : " + e.getMessage());
-                    e.printStackTrace();
-                    System.exit(1);
-                }
-
-                jeu.stageLoop();
+                
                 break;
 
             case 2:
-                System.out.println("Player Vs Computer");
+                String np = askname(1);
+                joueur1 = new Joueur(np, Couleur.BLANC, 9, stageModel);
+                joueur2 = new Joueur(boardifier.model.Player.COMPUTER, "Robert Hue", Couleur.NOIR, 9, stageModel);
                 break;
-
+                
             case 3:
-                System.out.println("Computer Vs Computer");
+                joueur1 = new Joueur(boardifier.model.Player.COMPUTER, "Robert Hue", Couleur.BLANC, 9, stageModel);
+                joueur2 = new Joueur(boardifier.model.Player.COMPUTER, "Nicolas Dupont-Aignan", Couleur.NOIR, 9, stageModel);
                 break;
+            default : 
+                return;
         }
+
+        model.getPlayers().add(joueur1);
+        model.getPlayers().add(joueur2);
+        model.setGameStage(stageModel);
+        jeu.setup();
+
+        for(Pion p : joueur1.getPions()) stageModel.addElement(p);
+        for(Pion p : joueur2.getPions()) stageModel.addElement(p);
+
+
+        jeu.setFirstStageName("main");
+
+        try {
+            MerelleStageView stageView = new MerelleStageView("main", stageModel);
+            stageView.createLooks();
+            view.setView(stageView);
+            // initialisation de la vue a faire
+            // jeu.startGame();
+            jeu.initlook();
+        } catch (GameException e) {
+            System.err.println("Erreur lors du démarrage du jeu : " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        jeu.stageLoop();
     }
 
     public static String askname(int nb) {

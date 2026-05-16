@@ -12,8 +12,12 @@ class Joueur extends Player{
     private int pionsRestants;
 
     public Joueur(String nom, Couleur couleur, int nombrePions, boardifier.model.GameStageModel stageModel) {
+        this(Player.HUMAN, nom, couleur, nombrePions, stageModel);
+    }
+
+    public Joueur(int type,String nom, Couleur couleur, int nombrePions, boardifier.model.GameStageModel stageModel) {
         // this.player = Player.createHumanPlayer(nom);
-        super(Player.HUMAN, nom);
+        super(type, nom);
         this.couleur = couleur;
         this.pions = new Pion[nombrePions];
         this.pionsRestants = nombrePions;

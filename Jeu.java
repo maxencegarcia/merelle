@@ -101,9 +101,9 @@ class Jeu extends Controller {
         Joueur j2 = (Joueur) model.getPlayers().get(1);
 
         if (j1.compterPions() < 3) {
-            System.out.println("Player 2 win");
+            System.out.println(j2.getNom() + " win");
         } else if (j2.compterPions() < 3) {
-            System.out.println("Player 1 win");
+            System.out.println(j1.getNom() +" win");
         }
     }
 
@@ -114,7 +114,18 @@ class Jeu extends Controller {
             paw = 'W';
         }else paw = 'B';
         System.out.println("its time for " + joueur.getNom() + " to play the pose phase your pawn is " + paw);
-        Position pos = askPosition();
+        // Position pos = askPosition();
+        Position pos;
+        if (joueur.getType() == boardifier.model.Player.COMPUTER) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            Joueur enemy = (Joueur) model.getPlayers().get((model.getIdPlayer() +1)%2);
+            pos = ia.choisirPlacement(joueur.getCouleur(), enemy.getCouleur());
+            System.out.println(joueur.getNom() + " " + pos.getX() +" " + pos.getY());
+        }else{pos = askPosition();}
 
         if (plateau.estVide(pos)) {
             Pion pion = joueur.getPionNonPlace();
@@ -142,12 +153,31 @@ class Jeu extends Controller {
         Character paw;
         if (joueur.getCouleur() == Couleur.BLANC) {
             paw = 'W';
-        }else paw = 'B';
+        } else paw = 'B';
         System.out.println("its time for " + joueur.getNom() + " to play the move phase your pawn is " + paw);
-        System.out.println("Source : ");
-        Position source = askPosition();
-        System.out.println("destination");
-        Position dest = askPosition();
+
+        Position source, dest;
+        if (joueur.getType() == boardifier.model.Player.COMPUTER) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            Position[] moves = ia.choisirDeplacement(joueur);
+            if (moves == null) {
+                System.out.println("Computer can't move!");
+                model.setNextPlayer();
+                return;
+            }
+            source = moves[0];
+            dest = moves[1];
+            System.out.println("Computer moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
+        } else {
+            System.out.println("Source : ");
+            source = askPosition();
+            System.out.println("destination");
+            dest = askPosition();
+        }
 
         Pion pion = plateau.getPion(source);
         if (pion != null && pion.getCouleur() == joueur.getCouleur() && plateau.estVide(dest)) {
@@ -180,11 +210,22 @@ class Jeu extends Controller {
         int idAdversaire = (model.getIdPlayer() + 1) % 2;
         Joueur adversaire = (Joueur) model.getPlayers().get(idAdversaire);
 
-        System.out.println("mill ! " + joueurActuel.getNom() + ", choose a pawn from" + adversaire.getNom() + " to retrieve.");
+        System.out.println("mill ! " + joueurActuel.getNom() + ", choose a pawn from " + adversaire.getNom() + " to retrieve.");
 
         boolean volReussi = false;
         while (!volReussi) {
-            Position pos = askPosition();
+            Position pos;
+            if (joueurActuel.getType() == boardifier.model.Player.COMPUTER) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                pos = ia.choisirVol(adversaire.getCouleur());
+                System.out.println("Computer steals position: " + pos.getX() + pos.getY());
+            } else {
+                pos = askPosition();
+            }
 
             if (CanBeStolen(pos, adversaire.getCouleur())) {
                 Pion victime = plateau.getPion(pos);
@@ -194,7 +235,6 @@ class Jeu extends Controller {
                 System.out.println("Pion retiré en " + pos.getX() + pos.getY());
                 volReussi = true;
                 model.setNextPlayer();
-                Joueur prochainJoueur = (Joueur) model.getCurrentPlayer();
                 if (phasePrecedente == Phase.PLACE) {
                     Joueur j1 = (Joueur) model.getPlayers().get(0);
                     Joueur j2 = (Joueur) model.getPlayers().get(1);
@@ -208,6 +248,10 @@ class Jeu extends Controller {
                 }
             } else {
                 System.out.println("You can't steal this, invalide target, mill protected pawn or yours.");
+                if (joueurActuel.getType() == boardifier.model.Player.COMPUTER) {
+                    // Safety break for AI if it somehow chooses an invalid position
+                    break;
+                }
             }
         }
     }
