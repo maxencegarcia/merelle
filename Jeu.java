@@ -127,6 +127,10 @@ class Jeu extends Controller {
             System.out.println(joueur.getNom() + " " + pos.getX() +" " + pos.getY());
         }else{pos = askPosition();}
 
+        // if (pos == "stop") {
+            
+        // }
+
         if (plateau.estVide(pos)) {
             Pion pion = joueur.getPionNonPlace();
             if (pion != null) {
@@ -165,13 +169,13 @@ class Jeu extends Controller {
             }
             Position[] moves = ia.choisirDeplacement(joueur);
             if (moves == null) {
-                System.out.println("Computer can't move!");
+                System.out.println(joueur.getNom() + "can't move!");
                 model.setNextPlayer();
                 return;
             }
             source = moves[0];
             dest = moves[1];
-            System.out.println("Computer moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
+            System.out.println(joueur.getNom() +" moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
         } else {
             System.out.println("Source : ");
             source = askPosition();
@@ -222,7 +226,7 @@ class Jeu extends Controller {
                     Thread.currentThread().interrupt();
                 }
                 pos = ia.choisirVol(adversaire.getCouleur());
-                System.out.println("Computer steals position: " + pos.getX() + pos.getY());
+                System.out.println(joueurActuel.getNom() + " steals position: " + pos.getX() + pos.getY());
             } else {
                 pos = askPosition();
             }
@@ -316,6 +320,12 @@ class Jeu extends Controller {
             }
 
             if (!valide) {
+                // enter = scanner.next();
+                if (enter.equalsIgnoreCase("stop")) {
+                    System.out.println("partie arrêté par l'utilisateur");
+                    System.exit(0);
+                }
+                System.out.println(enter);
                 System.out.println(
                         "Entrée invalide. Format attendu: LC (ex: 12 pour ligne 1, col 2) avec L:0-7 et C:0-2.");
             }
