@@ -123,8 +123,10 @@ class Jeu extends Controller {
         }
         Joueur j1 = (Joueur) model.getPlayers().get(0);
         Joueur j2 = (Joueur) model.getPlayers().get(1);
-
-        return phaseActuelle != Phase.PLACE && (j1.compterPions() < 3 || j2.compterPions() < 3);
+        if (phaseActuelle != Phase.PLACE && (j1.compterPions() < 3 || j2.compterPions() < 3) && (j1.getPionsRestants()==0 || j2.getPionsRestants() == 0)) {
+            return true ;
+        }else return false;
+        
     }
 
     public void stopGame() {
@@ -135,7 +137,7 @@ class Jeu extends Controller {
         Joueur j1 = (Joueur) model.getPlayers().get(0);
         Joueur j2 = (Joueur) model.getPlayers().get(1);
 
-        if (j1.compterPions() < 3) {
+        if (j1.compterPions() < 3 ) {
             System.out.println(j2.getNom() + " win");
         } else if (j2.compterPions() < 3) {
             System.out.println(j1.getNom() +" win");
