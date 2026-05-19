@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class StrategieMoulinIA {
+public class StrategieMoulinIA implements StrategieIA {
 
     private Plateau plateau;
     private Jeu jeu;

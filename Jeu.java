@@ -12,8 +12,9 @@ class Jeu extends Controller {
     private Phase phaseActuelle;
     private Phase phasePrecedente;
     private Scanner scanner;
-    private StrategieMoulinIA ia;
-
+    // private StrategieMoulinIA ia;
+    // private foud4 ia2;
+    private StrategieIA[] strategies = new StrategieIA[2];
     // static final Scanner input = new Scanner(System.in);
 
     public Jeu(Model model, View view, Scanner scanner) {
@@ -24,13 +25,47 @@ class Jeu extends Controller {
         
     }
 
+    private StrategieIA creerStrategie(int diff) {
+        if (diff == 1) {
+            return new StrategieMoulinIA(plateau, this);
+        } else {
+            return new foud4(plateau, this);
+        }
+    }
+
+
     public void setup() {
         if (model.getGameStage() != null) {
             plateau = new Plateau(model.getGameStage());
             model.getGameStage().addContainer(plateau);
-            ia = new StrategieMoulinIA(plateau, this);
+            // ia = new StrategieMoulinIA(plateau, this);
         }
     }
+
+    public void setup(int diff) {
+        if (model.getGameStage() != null) {
+            plateau = new Plateau(model.getGameStage());
+            model.getGameStage().addContainer(plateau);
+            // if (diff==1) {
+            //     ia = new StrategieMoulinIA(plateau, this);
+            // }else ia2 = new foud4(plateau, this);
+            strategies[1] = creerStrategie(diff);
+        }
+    }
+
+    public void setup(int diff, int diff2) {
+        if (model.getGameStage() != null) {
+            plateau = new Plateau(model.getGameStage());
+            model.getGameStage().addContainer(plateau);
+            // if (diff==1) {
+            //     ia = new StrategieMoulinIA(plateau, this);
+            // }else ia = new foud4(plateau, this);
+            strategies[0] = creerStrategie(diff);
+            strategies[1] = creerStrategie(diff2);
+            
+        }
+    }
+
 
     public void demarrerPartie(String stageName) {
         try {
@@ -122,9 +157,14 @@ class Jeu extends Controller {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            Joueur enemy = (Joueur) model.getPlayers().get((model.getIdPlayer() +1)%2);
-            pos = ia.choisirPlacement(joueur.getCouleur(), enemy.getCouleur());
-            System.out.println(joueur.getNom() + " " + pos.getX() +" " + pos.getY());
+            Joueur enemy = (Joueur) model.getPlayers().get((model.getIdPlayer() + 1) % 2);
+            StrategieIA currentStrategie = strategies[model.getIdPlayer()];
+            if (currentStrategie != null) {
+                pos = currentStrategie.choisirPlacement(joueur.getCouleur(), enemy.getCouleur());
+            } else {
+                pos = askPosition();
+            }
+            System.out.println(joueur.getNom() + " " + pos.getX() + " " + pos.getY());
         }else{pos = askPosition();}
 
         // if (pos == "stop") {
@@ -167,8 +207,11 @@ class Jeu extends Controller {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            Position[] moves = ia.choisirDeplacement(joueur);
-            if (moves == null) {
+            StrategieIA currentStrategie = strategies[model.getIdPlayer()];
+            Position[] moves = null;
+            if (currentStrategie != null) {
+                moves = currentStrategie.choisirDeplacement(joueur);
+            }            if (moves == null) {
                 System.out.println(joueur.getNom() + "can't move!");
                 model.setNextPlayer();
                 return;
@@ -225,8 +268,12 @@ class Jeu extends Controller {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                pos = ia.choisirVol(adversaire.getCouleur());
-                System.out.println(joueurActuel.getNom() + " steals position: " + pos.getX() + pos.getY());
+                StrategieIA currentStrategie = strategies[model.getIdPlayer()];
+                if (currentStrategie != null) {
+                    pos = currentStrategie.choisirVol(adversaire.getCouleur());
+                } else {
+                    pos = askPosition();
+                }                System.out.println(joueurActuel.getNom() + " steals position: " + pos.getX() + pos.getY());
             } else {
                 pos = askPosition();
             }

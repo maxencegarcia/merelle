@@ -1,3 +1,4 @@
+import java.util.Random;
 import java.util.Scanner;
 import boardifier.model.Model;
 import boardifier.view.View;
@@ -60,6 +61,9 @@ public class Merelle {
         StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
         MerelleStageModel stageModel = new MerelleStageModel("main", model);
         Joueur joueur1, joueur2;
+        int iadiff =1;
+        int ia1diff=1;
+        int ia2diff=1;
 
         switch (gm) {
             case 1:
@@ -78,11 +82,23 @@ public class Merelle {
                 String np = askname(1);
                 joueur1 = new Joueur(np, Couleur.BLANC, 9, stageModel);
                 joueur2 = new Joueur(boardifier.model.Player.COMPUTER, "Robert Hue", Couleur.NOIR, 9, stageModel);
+                System.out.println("choisissez la difficulté de l'ia 1");
+                System.out.println("niveau 1 (1)");
+                System.out.println("niveau 2 (2)");
+                iadiff = input.nextInt();
                 break;
                 
             case 3:
-                joueur1 = new Joueur(boardifier.model.Player.COMPUTER, "Robert Hue", Couleur.BLANC, 9, stageModel);
-                joueur2 = new Joueur(boardifier.model.Player.COMPUTER, "Nicolas Dupont-Aignan", Couleur.NOIR, 9, stageModel);
+                joueur1 = new Joueur(boardifier.model.Player.COMPUTER, randomnom(1, 1), Couleur.BLANC, 9, stageModel);
+                joueur2 = new Joueur(boardifier.model.Player.COMPUTER, randomnom(2, 1), Couleur.NOIR, 9, stageModel);
+                System.out.println("choisissez la difficulté de l'ia 1");
+                System.out.println("niveau 1 (1)");
+                System.out.println("niveau 2 (2)");
+                ia1diff = input.nextInt();
+                System.out.println("choisissez la difficulté de l'ia 2");
+                System.out.println("niveau 1 (1)");
+                System.out.println("niveau 2 (2)");
+                ia2diff = input.nextInt();
                 break;
             default : 
                 return;
@@ -91,7 +107,16 @@ public class Merelle {
         model.getPlayers().add(joueur1);
         model.getPlayers().add(joueur2);
         model.setGameStage(stageModel);
-        jeu.setup();
+        if (gm == 1) {
+            jeu.setup();
+        }
+        if (gm == 2) {
+            jeu.setup(iadiff);
+        }
+        if (gm == 3) {
+            jeu.setup(ia1diff, ia2diff);
+        }
+        // jeu.setup();
 
         for(Pion p : joueur1.getPions()) stageModel.addElement(p);
         for(Pion p : joueur2.getPions()) stageModel.addElement(p);
@@ -118,5 +143,48 @@ public class Merelle {
     public static String askname(int nb) {
         System.out.print("Nom du joueur " + nb + " : ");
         return input.nextLine();
+    }
+
+    public static String randomnom(int partie, int theme){
+        Random randomNumbers = new Random();
+        int value = (randomNumbers.nextInt(8)+1);
+        if( partie == 1 && value%2==0) {
+            while (value%2==0) {
+                value = (randomNumbers.nextInt(8)+1);
+            }
+        }
+        if( partie == 2 && value%2!=0) {
+            while (value%2!=0) {
+                value = (randomNumbers.nextInt(8)+1);
+            }
+        }
+        String nom ="computer";
+        if (theme == 1) {
+            if (value == 1) {
+            return nom = "Robert Hue";
+            }
+            if (value == 2) {
+                return nom = "Jean Lassalle";
+            }
+            if (value == 3) {
+                return nom = "Ségolène Royal";
+            }
+            if (value == 4) {
+                return nom = "Nicolas Dupont-Aignan";
+            }
+            if (value == 5) {
+                return nom = "Sandrine Rousseau";
+            }
+            if (value == 6) {
+                return nom = "Rachida Dati";
+            }
+            if (value == 7) {
+                return nom = "Philippe Poutou";
+            }
+            if (value == 8) {
+                return nom = "Patrick Balkany";
+            }
+        }
+        return nom;
     }
 }
