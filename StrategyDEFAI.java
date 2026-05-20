@@ -11,16 +11,10 @@ public class StrategyDEFAI implements AIStrategy {
         this.game = game;
     }
 
-    // =====================================================
-    // IA ULTRA DEFENSIVE
-    // =====================================================
-
+    // IA ultra defensive priorité absolue : empêcher moulin adverse
     public Position choosePlacement(
             Color myColor,
             Color enemyColor) {
-
-        // priorité absolue :
-        // empêcher moulin adverse
 
         Position danger =
                 findMill(enemyColor);
@@ -55,10 +49,7 @@ public class StrategyDEFAI implements AIStrategy {
         return null;
     }
 
-    // =====================================================
     // DEPLACEMENT DEFENSIF
-    // =====================================================
-
     public Position[] chooseMove(
             PlayerC player) {
 
@@ -114,10 +105,7 @@ public class StrategyDEFAI implements AIStrategy {
         return bestMove;
     }
 
-    // =====================================================
-    // VOL
-    // =====================================================
-
+    // Vol
     public Position chooseSteal(
             Color enemyColor) {
 
@@ -147,10 +135,7 @@ public class StrategyDEFAI implements AIStrategy {
         return null;
     }
 
-    // =====================================================
-    // SCORE DEFENSIF
-    // =====================================================
-
+    // Score defensif
     private int defensiveScore(
             Position pos,
             Color myColor) {
@@ -172,10 +157,7 @@ public class StrategyDEFAI implements AIStrategy {
         return score;
     }
 
-    // =====================================================
-    // POSITION DEFENSIVE
-    // =====================================================
-
+    // Position defensive
     private Position bestDefensivePosition(
             Color myColor,
             Color enemyColor) {
@@ -225,10 +207,7 @@ public class StrategyDEFAI implements AIStrategy {
         return best;
     }
 
-    // =====================================================
-    // DETECTER MOULIN
-    // =====================================================
-
+    // Detecter moulin
     private Position findMill(Color color) {
 
         for (int y = 0; y < 3; y++) {
@@ -265,10 +244,7 @@ public class StrategyDEFAI implements AIStrategy {
         return null;
     }
 
-    // =====================================================
-    // CHECK RIPOSTE ADVERSE
-    // =====================================================
-
+    // Check riposte adverse
     private boolean enemyCanMillAfter(
             Position posIA,
             Color myColor,
@@ -290,10 +266,7 @@ public class StrategyDEFAI implements AIStrategy {
         return enemyMill != null;
     }
 
-    // =====================================================
-    // VOISINS
-    // =====================================================
-
+    // Voisins
     private List<Position> getNeighbors(
             Position p) {
 
