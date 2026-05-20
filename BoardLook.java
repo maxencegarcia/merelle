@@ -1,8 +1,8 @@
 import boardifier.model.ContainerElement;
 import boardifier.view.ContainerLook;
 
-public class PlateauLook extends ContainerLook {
-    private final Plateau plateau;
+public class BoardLook extends ContainerLook {
+    private final Board board;
     private static final String[] T = {
         "00────────────10────────────20",
         "│             │             │ ",
@@ -19,9 +19,9 @@ public class PlateauLook extends ContainerLook {
         "60────────────50────────────40"
     };
 
-    public PlateauLook(Plateau plateau) {
-        super((ContainerElement) plateau, 1, 1, 1);
-        this.plateau = plateau;
+    public BoardLook(Board board) {
+        super((ContainerElement) board, 1, 1, 1);
+        this.board = board;
     }
 
     @Override public int getWidth()  { return 30; }
@@ -36,8 +36,8 @@ public class PlateauLook extends ContainerLook {
                 char ch = T[r].charAt(c);
                 if (Character.isDigit(ch) && c < 29 && Character.isDigit(T[r].charAt(c+1))) {
                     int x = ch - '0', y = T[r].charAt(c+1) - '0';
-                    Pion p = plateau.getPion(new Position(x, y));
-                    shape[r][c] = (p == null) ? String.valueOf(ch) : (p.getCouleur() == Couleur.BLANC ? "W" : "B");
+                    Pawn p = board.getPawn(new Position(x, y));
+                    shape[r][c] = (p == null) ? String.valueOf(ch) : (p.getColor() == Color.WHITE ? "W" : "B");
                     shape[r][c+1] = (p == null) ? String.valueOf(T[r].charAt(c+1)) : " ";
                     c++;
                 } else {

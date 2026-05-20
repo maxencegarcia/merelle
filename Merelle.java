@@ -10,19 +10,19 @@ public class Merelle {
 
     public static void main(String[] args) {
         int gm = ask();
-        lancer(gm);
+        launch(gm);
     }
 
     public static int ask() {
         int gm = 0;
-        boolean valide = false;
+        boolean valid = false;
 
         System.out.println("Choose your gamemode:");
         System.out.println("Player Versus Player (1)");
         System.out.println("Player Versus Computer (2)");
         System.out.println("Computer Versus Computer (3)");
 
-        while (!valide) {
+        while (!valid) {
             if (!input.hasNext()) {
                 System.out.println("End of input stream. Exiting.");
                 System.exit(0);
@@ -32,12 +32,12 @@ public class Merelle {
                 input.nextLine();
 
                 if (verif(gm)) {
-                    valide = true;
+                    valid = true;
                 } else {
                     System.out.println("Choose a possible gamemode: 1, 2 or 3\n");
                 }
             } else {
-                System.out.println("Error : Enter one of the following number(1, 2 or 3).\n");
+                System.out.println("Error: Enter one of the following numbers (1, 2 or 3).\n");
                 input.nextLine();
             }
         }
@@ -53,138 +53,116 @@ public class Merelle {
         return gm == 1 || gm == 2 || gm == 3;
     }
 
-    public static void lancer(int gm) {
+    public static void launch(int gm) {
         Model model = new Model();
         View view = new View(model);
-        Jeu jeu = new Jeu(model, view, input);
+        Game game = new Game(model, view, input);
 
         StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
         MerelleStageModel stageModel = new MerelleStageModel("main", model);
-        Joueur joueur1, joueur2;
-        int iadiff =1;
-        int ia1diff=1;
-        int ia2diff=1;
+        PlayerC player1, player2;
+        int aiDiff = 1;
+        int ai1Diff = 1;
+        int ai2Diff = 1;
 
         switch (gm) {
             case 1:
-                String np1 = askname(1);
-                String np2 = askname(2);
+                String np1 = askName(1);
+                String np2 = askName(2);
                 System.out.println("Player 1 = " + np1);
                 System.out.println("Player 2 = " + np2);
 
-                joueur1 = new Joueur(np1, Couleur.BLANC, 9, stageModel);
-                joueur2 = new Joueur(np2, Couleur.NOIR, 9, stageModel);
-
-                
+                player1 = new PlayerC(np1, Color.WHITE, 9, stageModel);
+                player2 = new PlayerC(np2, Color.BLACK, 9, stageModel);
                 break;
 
             case 2:
-                String np = askname(1);
-                joueur1 = new Joueur(np, Couleur.BLANC, 9, stageModel);
-                joueur2 = new Joueur(boardifier.model.Player.COMPUTER, "Robert Hue", Couleur.NOIR, 9, stageModel);
-                System.out.println("choisissez la difficulté de l'ia 1");
-                System.out.println("niveau 1 (1)");
-                System.out.println("niveau 2 (2)");
-                iadiff = input.nextInt();
+                String np = askName(1);
+                player1 = new PlayerC(np, Color.WHITE, 9, stageModel);
+                player2 = new PlayerC(boardifier.model.Player.COMPUTER, "Robert Hue", Color.BLACK, 9, stageModel);
+                System.out.println("Choose AI difficulty:");
+                System.out.println("Level 1 (1)");
+                System.out.println("Level 2 (2)");
+                aiDiff = input.nextInt();
                 break;
-                
+
             case 3:
-                joueur1 = new Joueur(boardifier.model.Player.COMPUTER, randomnom(1, 1), Couleur.BLANC, 9, stageModel);
-                joueur2 = new Joueur(boardifier.model.Player.COMPUTER, randomnom(2, 1), Couleur.NOIR, 9, stageModel);
-                System.out.println("choisissez la difficulté de l'ia 1");
-                System.out.println("niveau 1 (1)");
-                System.out.println("niveau 2 (2)");
-                ia1diff = input.nextInt();
-                System.out.println("choisissez la difficulté de l'ia 2");
-                System.out.println("niveau 1 (1)");
-                System.out.println("niveau 2 (2)");
-                ia2diff = input.nextInt();
+                player1 = new PlayerC(boardifier.model.Player.COMPUTER, randomName(1, 1), Color.WHITE, 9, stageModel);
+                player2 = new PlayerC(boardifier.model.Player.COMPUTER, randomName(2, 1), Color.BLACK, 9, stageModel);
+                System.out.println("Choose AI 1 difficulty:");
+                System.out.println("Level 1 (1)");
+                System.out.println("Level 2 (2)");
+                ai1Diff = input.nextInt();
+                System.out.println("Choose AI 2 difficulty:");
+                System.out.println("Level 1 (1)");
+                System.out.println("Level 2 (2)");
+                ai2Diff = input.nextInt();
                 break;
-            default : 
+            default:
                 return;
         }
 
-        model.getPlayers().add(joueur1);
-        model.getPlayers().add(joueur2);
+        model.getPlayers().add(player1);
+        model.getPlayers().add(player2);
         model.setGameStage(stageModel);
         if (gm == 1) {
-            jeu.setup();
+            game.setup();
         }
         if (gm == 2) {
-            jeu.setup(iadiff);
+            game.setup(aiDiff);
         }
         if (gm == 3) {
-            jeu.setup(ia1diff, ia2diff);
+            game.setup(ai1Diff, ai2Diff);
         }
-        // jeu.setup();
 
-        for(Pion p : joueur1.getPions()) stageModel.addElement(p);
-        for(Pion p : joueur2.getPions()) stageModel.addElement(p);
+        for (Pawn p : player1.getPawns()) stageModel.addElement(p);
+        for (Pawn p : player2.getPawns()) stageModel.addElement(p);
 
-
-        jeu.setFirstStageName("main");
+        game.setFirstStageName("main");
 
         try {
             MerelleStageView stageView = new MerelleStageView("main", stageModel);
             stageView.createLooks();
             view.setView(stageView);
-            // initialisation de la vue a faire
-            // jeu.startGame();
-            jeu.initlook();
+            game.initLook();
         } catch (GameException e) {
-            System.err.println("Erreur lors du démarrage du jeu : " + e.getMessage());
+            System.err.println("Error starting game: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);
         }
 
-        jeu.stageLoop();
+        game.stageLoop();
     }
 
-    public static String askname(int nb) {
-        System.out.print("Nom du joueur " + nb + " : ");
+    public static String askName(int nb) {
+        System.out.print("Player " + nb + " name: ");
         return input.nextLine();
     }
 
-    public static String randomnom(int partie, int theme){
+    public static String randomName(int slot, int theme) {
         Random randomNumbers = new Random();
-        int value = (randomNumbers.nextInt(8)+1);
-        if( partie == 1 && value%2==0) {
-            while (value%2==0) {
-                value = (randomNumbers.nextInt(8)+1);
+        int value = (randomNumbers.nextInt(8) + 1);
+        if (slot == 1 && value % 2 == 0) {
+            while (value % 2 == 0) {
+                value = (randomNumbers.nextInt(8) + 1);
             }
         }
-        if( partie == 2 && value%2!=0) {
-            while (value%2!=0) {
-                value = (randomNumbers.nextInt(8)+1);
+        if (slot == 2 && value % 2 != 0) {
+            while (value % 2 != 0) {
+                value = (randomNumbers.nextInt(8) + 1);
             }
         }
-        String nom ="computer";
+        String name = "computer";
         if (theme == 1) {
-            if (value == 1) {
-            return nom = "Robert Hue";
-            }
-            if (value == 2) {
-                return nom = "Jean Lassalle";
-            }
-            if (value == 3) {
-                return nom = "Ségolène Royal";
-            }
-            if (value == 4) {
-                return nom = "Nicolas Dupont-Aignan";
-            }
-            if (value == 5) {
-                return nom = "Sandrine Rousseau";
-            }
-            if (value == 6) {
-                return nom = "Rachida Dati";
-            }
-            if (value == 7) {
-                return nom = "Philippe Poutou";
-            }
-            if (value == 8) {
-                return nom = "Patrick Balkany";
-            }
+            if (value == 1) return "Robert Hue";
+            if (value == 2) return "Jean Lassalle";
+            if (value == 3) return "Ségolène Royal";
+            if (value == 4) return "Nicolas Dupont-Aignan";
+            if (value == 5) return "Sandrine Rousseau";
+            if (value == 6) return "Rachida Dati";
+            if (value == 7) return "Philippe Poutou";
+            if (value == 8) return "Patrick Balkany";
         }
-        return nom;
+        return name;
     }
 }

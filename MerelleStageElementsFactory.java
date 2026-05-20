@@ -2,16 +2,16 @@ import boardifier.model.GameStageModel;
 import boardifier.model.StageElementsFactory;
 
 public class MerelleStageElementsFactory extends StageElementsFactory {
-    private final GameStageModel monStage;
+    private final GameStageModel stageModel;
 
     public MerelleStageElementsFactory(GameStageModel gameStageModel) {
         super(gameStageModel);
-        this.monStage = gameStageModel;
+        this.stageModel = gameStageModel;
     }
 
     @Override
     public void setup() {
-        Plateau plateau = new Plateau(monStage);
-        monStage.addContainer(plateau);
+        Board board = new Board(stageModel);
+        stageModel.addContainer(board);
     }
 }

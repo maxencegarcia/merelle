@@ -7,74 +7,58 @@ import boardifier.view.View;
 import boardifier.model.GameException;
 import boardifier.model.Player;
 
-class Jeu extends Controller {
-    private Plateau plateau;
-    private Phase phaseActuelle;
-    private Phase phasePrecedente;
+class Game extends Controller {
+    private Board board;
+    private Phase currentPhase;
+    private Phase previousPhase;
     private Scanner scanner;
-    // private StrategieMoulinIA ia;
-    // private foud4 ia2;
-    private StrategieIA[] strategies = new StrategieIA[2];
-    // static final Scanner input = new Scanner(System.in);
+    private AIStrategy[] strategies = new AIStrategy[2];
 
-    public Jeu(Model model, View view, Scanner scanner) {
+    public Game(Model model, View view, Scanner scanner) {
         super(model, view);
-        phaseActuelle = Phase.PLACE;
+        currentPhase = Phase.PLACE;
         this.scanner = scanner;
         this.mapElementLook = new java.util.HashMap<>();
-        
     }
 
-    private StrategieIA creerStrategie(int diff) {
+    private AIStrategy createStrategy(int diff) {
         if (diff == 1) {
-            return new StrategieMoulinIA(plateau, this);
+            return new StrategyMillAI(board, this);
         } else {
-            return new foud4(plateau, this);
+            return new AdvancedMillAI(board, this);
         }
     }
 
-
     public void setup() {
         if (model.getGameStage() != null) {
-            plateau = new Plateau(model.getGameStage());
-            model.getGameStage().addContainer(plateau);
-            // ia = new StrategieMoulinIA(plateau, this);
+            board = new Board(model.getGameStage());
+            model.getGameStage().addContainer(board);
         }
     }
 
     public void setup(int diff) {
         if (model.getGameStage() != null) {
-            plateau = new Plateau(model.getGameStage());
-            model.getGameStage().addContainer(plateau);
-            // if (diff==1) {
-            //     ia = new StrategieMoulinIA(plateau, this);
-            // }else ia2 = new foud4(plateau, this);
-            strategies[1] = creerStrategie(diff);
+            board = new Board(model.getGameStage());
+            model.getGameStage().addContainer(board);
+            strategies[1] = createStrategy(diff);
         }
     }
 
     public void setup(int diff, int diff2) {
         if (model.getGameStage() != null) {
-            plateau = new Plateau(model.getGameStage());
-            model.getGameStage().addContainer(plateau);
-            // if (diff==1) {
-            //     ia = new StrategieMoulinIA(plateau, this);
-            // }else ia = new foud4(plateau, this);
-            strategies[0] = creerStrategie(diff);
-            strategies[1] = creerStrategie(diff2);
-            
+            board = new Board(model.getGameStage());
+            model.getGameStage().addContainer(board);
+            strategies[0] = createStrategy(diff);
+            strategies[1] = createStrategy(diff2);
         }
     }
 
-
-    public void demarrerPartie(String stageName) {
+    public void launchGame(String stageName) {
         try {
-            // On entoure l'appel qui pose problème d'un bloc try-catch
             startStage(stageName);
         } catch (GameException e) {
-            System.err.println("Erreur critique lors du démarrage du stage Boardifier : " + e.getMessage());
+            System.err.println("Critical error starting boardifier stage: " + e.getMessage());
             e.printStackTrace();
-            // Optionnel : arrêter le programme proprement en cas d'échec d'initialisation
             System.exit(1);
         }
     }
@@ -84,274 +68,248 @@ class Jeu extends Controller {
     @Override
     public void stageLoop() {
         while (!model.isEndGame()) {
-            if (estTermine()) {
+            if (isGameOver()) {
                 stopGame();
                 break;
             }
-            if (phaseActuelle == Phase.PLACE) {
+            if (currentPhase == Phase.PLACE) {
                 if (u == 0) {
                     System.out.println(
                             "Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
                 }
-                playpose();
-                // update();
-                // try {
-                // TimeUnit.MINUTES.sleep(1);
-                // } catch (InterruptedException e) {
-                // // Restaurer le statut d'interruption (bonne pratique)
-                // Thread.currentThread().interrupt();
-                // }
-            }
-            else if (phaseActuelle == Phase.MOVE) {
-                playmove();
-            }
-            else if (phaseActuelle == Phase.STEAL) {
-                playsteal();
-                phaseActuelle = phasePrecedente;
-            } else {
-
+                playPlace();
+            } else if (currentPhase == Phase.MOVE) {
+                playMove();
+            } else if (currentPhase == Phase.STEAL) {
+                playSteal();
+                currentPhase = previousPhase;
             }
             u++;
             update();
         }
-        afficherGagnant();
+        displayWinner();
     }
 
-    public boolean estTermine() {
+    public boolean isGameOver() {
         if (model.getPlayers().size() < 2) {
             return false;
         }
-        Joueur j1 = (Joueur) model.getPlayers().get(0);
-        Joueur j2 = (Joueur) model.getPlayers().get(1);
-        if (phaseActuelle != Phase.PLACE && (j1.compterPions() < 3 || j2.compterPions() < 3) && (j1.getPionsRestants()==0 || j2.getPionsRestants() == 0)) {
-            return true ;
-        }else return false;
-        
+        PlayerC player1 = (PlayerC) model.getPlayers().get(0);
+        PlayerC player2 = (PlayerC) model.getPlayers().get(1);
+        if (currentPhase != Phase.PLACE
+                && (player1.countPawns() < 3 || player2.countPawns() < 3)
+                && (player1.getRemainingPawns() == 0 || player2.getRemainingPawns() == 0)) {
+            return true;
+        } else return false;
     }
 
     public void stopGame() {
         model.stopGame();
     }
 
-    public void afficherGagnant() {
-        Joueur j1 = (Joueur) model.getPlayers().get(0);
-        Joueur j2 = (Joueur) model.getPlayers().get(1);
+    public void displayWinner() {
+        PlayerC player1 = (PlayerC) model.getPlayers().get(0);
+        PlayerC player2 = (PlayerC) model.getPlayers().get(1);
 
-        if (j1.compterPions() < 3 ) {
-            System.out.println(j2.getNom() + " win");
-        } else if (j2.compterPions() < 3) {
-            System.out.println(j1.getNom() +" win");
+        if (player1.countPawns() < 3) {
+            System.out.println(player2.getName() + " wins");
+        } else if (player2.countPawns() < 3) {
+            System.out.println(player1.getName() + " wins");
         }
     }
 
-    public void playpose() {
-        Joueur joueur = (Joueur) model.getCurrentPlayer();
+    public void playPlace() {
+        PlayerC player = (PlayerC) model.getCurrentPlayer();
         Character paw;
-        if (joueur.getCouleur() == Couleur.BLANC) {
+        if (player.getColor() == Color.WHITE) {
             paw = 'W';
-        }else paw = 'B';
-        System.out.println("its time for " + joueur.getNom() + " to play the pose phase your pawn is " + paw);
-        // Position pos = askPosition();
+        } else paw = 'B';
+        System.out.println("It's time for " + player.getName() + " to play the placement phase. Your pawn is: " + paw);
+
         Position pos;
-        if (joueur.getType() == boardifier.model.Player.COMPUTER) {
+        if (player.getType() == boardifier.model.Player.COMPUTER) {
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            Joueur enemy = (Joueur) model.getPlayers().get((model.getIdPlayer() + 1) % 2);
-            StrategieIA currentStrategie = strategies[model.getIdPlayer()];
-            if (currentStrategie != null) {
-                pos = currentStrategie.choisirPlacement(joueur.getCouleur(), enemy.getCouleur());
+            PlayerC enemy = (PlayerC) model.getPlayers().get((model.getIdPlayer() + 1) % 2);
+            AIStrategy currentStrategy = strategies[model.getIdPlayer()];
+            if (currentStrategy != null) {
+                pos = currentStrategy.choosePlacement(player.getColor(), enemy.getColor());
             } else {
                 pos = askPosition();
             }
-            System.out.println(joueur.getNom() + " " + pos.getX() + " " + pos.getY());
-        }else{pos = askPosition();}
+            System.out.println(player.getName() + " " + pos.getX() + " " + pos.getY());
+        } else {
+            pos = askPosition();
+        }
 
-        // if (pos == "stop") {
-            
-        // }
-
-        if (plateau.estVide(pos)) {
-            Pion pion = joueur.getPionNonPlace();
-            if (pion != null) {
-                plateau.placerPion(pion, pos);
+        if (board.isEmpty(pos)) {
+            Pawn pawn = player.getUnplacedPawn();
+            if (pawn != null) {
+                board.placePawn(pawn, pos);
             }
-            if (estUnMoulin(pos, joueur.getCouleur())) {
-                phasePrecedente = Phase.PLACE;
-                phaseActuelle = Phase.STEAL;
+            if (isAMill(pos, player.getColor())) {
+                previousPhase = Phase.PLACE;
+                currentPhase = Phase.STEAL;
             } else {
                 model.setNextPlayer();
-                Joueur j1 = (Joueur) model.getPlayers().get(0);
-                Joueur j2 = (Joueur) model.getPlayers().get(1);
-                if (j2.getPionsRestants() == 0 && j1.getPionsRestants() == 0) {
-                    phaseActuelle = Phase.MOVE;
+                PlayerC p1 = (PlayerC) model.getPlayers().get(0);
+                PlayerC p2 = (PlayerC) model.getPlayers().get(1);
+                if (p2.getRemainingPawns() == 0 && p1.getRemainingPawns() == 0) {
+                    currentPhase = Phase.MOVE;
                 }
             }
         } else {
-            System.out.println("pos invalide");
+            System.out.println("Invalid position");
         }
     }
 
-    public void playmove() {
-        Joueur joueur = (Joueur) model.getCurrentPlayer();
+    public void playMove() {
+        PlayerC player = (PlayerC) model.getCurrentPlayer();
         Character paw;
-        if (joueur.getCouleur() == Couleur.BLANC) {
+        if (player.getColor() == Color.WHITE) {
             paw = 'W';
         } else paw = 'B';
-        System.out.println("its time for " + joueur.getNom() + " to play the move phase your pawn is " + paw);
+        System.out.println("It's time for " + player.getName() + " to play the move phase. Your pawn is: " + paw);
 
         Position source, dest;
-        if (joueur.getType() == boardifier.model.Player.COMPUTER) {
+        if (player.getType() == boardifier.model.Player.COMPUTER) {
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            StrategieIA currentStrategie = strategies[model.getIdPlayer()];
+            AIStrategy currentStrategy = strategies[model.getIdPlayer()];
             Position[] moves = null;
-            if (currentStrategie != null) {
-                moves = currentStrategie.choisirDeplacement(joueur);
-            }            if (moves == null) {
-                System.out.println(joueur.getNom() + "can't move!");
+            if (currentStrategy != null) {
+                moves = currentStrategy.chooseMove(player);
+            }
+            if (moves == null) {
+                System.out.println(player.getName() + " can't move!");
                 model.setNextPlayer();
                 return;
             }
             source = moves[0];
             dest = moves[1];
-            System.out.println(joueur.getNom() +" moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
+            System.out.println(player.getName() + " moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
         } else {
-            System.out.println("Source : ");
+            System.out.println("Source: ");
             source = askPosition();
-            System.out.println("destination");
+            System.out.println("Destination: ");
             dest = askPosition();
         }
 
-        Pion pion = plateau.getPion(source);
-        if (pion != null && pion.getCouleur() == joueur.getCouleur() && plateau.estVide(dest)) {
-            Boolean canmove = false;
-            if (joueur.compterPions() == 3) {
-                canmove = true;
-            } else if (sontcollé(source, dest)) {
-                canmove = true;
+        Pawn pawn = board.getPawn(source);
+        if (pawn != null && pawn.getColor() == player.getColor() && board.isEmpty(dest)) {
+            boolean canMove = false;
+            if (player.countPawns() == 3) {
+                canMove = true;
+            } else if (areAdjacent(source, dest)) {
+                canMove = true;
             }
-            if (canmove) {
-                plateau.deplacerPion(pion, source, dest);
-                if (estUnMoulin(dest, joueur.getCouleur())) {
-                    phasePrecedente = Phase.MOVE;
-                    phaseActuelle = Phase.STEAL;
+            if (canMove) {
+                board.movePawn(pawn, source, dest);
+                if (isAMill(dest, player.getColor())) {
+                    previousPhase = Phase.MOVE;
+                    currentPhase = Phase.STEAL;
                 } else {
                     model.setNextPlayer();
                 }
-
             } else {
-                System.out.println("mouve non collé");
+                System.out.println("Non-adjacent move");
             }
         } else {
-            System.out.println("move invalide");
+            System.out.println("Invalid move");
         }
     }
 
-    public void playsteal() {
-        Joueur joueurActuel = (Joueur) model.getCurrentPlayer();
+    public void playSteal() {
+        PlayerC currentPlayer = (PlayerC) model.getCurrentPlayer();
 
-        int idAdversaire = (model.getIdPlayer() + 1) % 2;
-        Joueur adversaire = (Joueur) model.getPlayers().get(idAdversaire);
+        int opponentId = (model.getIdPlayer() + 1) % 2;
+        PlayerC opponent = (PlayerC) model.getPlayers().get(opponentId);
 
-        System.out.println("mill ! " + joueurActuel.getNom() + ", choose a pawn from " + adversaire.getNom() + " to retrieve.");
+        System.out.println("Mill! " + currentPlayer.getName() + ", choose a pawn from " + opponent.getName() + " to remove.");
 
-        boolean volReussi = false;
-        while (!volReussi) {
+        boolean stealSucceeded = false;
+        while (!stealSucceeded) {
             Position pos;
-            if (joueurActuel.getType() == boardifier.model.Player.COMPUTER) {
+            if (currentPlayer.getType() == boardifier.model.Player.COMPUTER) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                StrategieIA currentStrategie = strategies[model.getIdPlayer()];
-                if (currentStrategie != null) {
-                    pos = currentStrategie.choisirVol(adversaire.getCouleur());
+                AIStrategy currentStrategy = strategies[model.getIdPlayer()];
+                if (currentStrategy != null) {
+                    pos = currentStrategy.chooseSteal(opponent.getColor());
                 } else {
                     pos = askPosition();
-                }                System.out.println(joueurActuel.getNom() + " steals position: " + pos.getX() + pos.getY());
+                }
+                System.out.println(currentPlayer.getName() + " steals position: " + pos.getX() + pos.getY());
             } else {
                 pos = askPosition();
             }
 
-            if (CanBeStolen(pos, adversaire.getCouleur())) {
-                Pion victime = plateau.getPion(pos);
-                plateau.retirerPion(pos);
-                adversaire.retirerPion(victime);
+            if (canBeStolen(pos, opponent.getColor())) {
+                Pawn victim = board.getPawn(pos);
+                board.removePawn(pos);
+                opponent.removePawn(victim);
 
-                System.out.println("Pion retiré en " + pos.getX() + pos.getY());
-                volReussi = true;
+                System.out.println("Pawn removed at " + pos.getX() + pos.getY());
+                stealSucceeded = true;
                 model.setNextPlayer();
-                if (phasePrecedente == Phase.PLACE) {
-                    Joueur j1 = (Joueur) model.getPlayers().get(0);
-                    Joueur j2 = (Joueur) model.getPlayers().get(1);
-                    if (j1.getPionsRestants() == 0 && j2.getPionsRestants() == 0) {
-                        phaseActuelle = Phase.MOVE;
+                if (previousPhase == Phase.PLACE) {
+                    PlayerC p1 = (PlayerC) model.getPlayers().get(0);
+                    PlayerC p2 = (PlayerC) model.getPlayers().get(1);
+                    if (p1.getRemainingPawns() == 0 && p2.getRemainingPawns() == 0) {
+                        currentPhase = Phase.MOVE;
                     } else {
-                        phaseActuelle = Phase.PLACE;
+                        currentPhase = Phase.PLACE;
                     }
                 } else {
-                    phaseActuelle = Phase.MOVE;
+                    currentPhase = Phase.MOVE;
                 }
             } else {
-                System.out.println("You can't steal this, invalide target, mill protected pawn or yours.");
-                if (joueurActuel.getType() == boardifier.model.Player.COMPUTER) {
-                    // Safety break for AI if it somehow chooses an invalid position
+                System.out.println("You can't steal this: invalid target, mill-protected pawn, or your own pawn.");
+                if (currentPlayer.getType() == boardifier.model.Player.COMPUTER) {
                     break;
                 }
             }
         }
     }
 
-    public boolean estUnMoulin(Position pos, Couleur couleur) {
+    public boolean isAMill(Position pos, Color color) {
         int x = pos.getX();
         int y = pos.getY();
-        // extrémité gauche
-        if (isColor(x, y, couleur) && isColor((x+1)%8, y, couleur) && isColor((x+2)%8, y, couleur)) {
+        if (isColor(x, y, color) && isColor((x+1)%8, y, color) && isColor((x+2)%8, y, color)) {
             return true;
         }
-
-        //milieu
-        if (isColor((x-1+8)%8, y, couleur) && isColor(x, y, couleur) && isColor((x+1)%8, y, couleur)) {
+        if (isColor((x-1+8)%8, y, color) && isColor(x, y, color) && isColor((x+1)%8, y, color)) {
             return true;
         }
-
-        //extrémité droite
-        if (isColor((x-2+8)%8, y, couleur) && isColor((x-1+8)%8, y, couleur) && isColor(x, y, couleur)) {
+        if (isColor((x-2+8)%8, y, color) && isColor((x-1+8)%8, y, color) && isColor(x, y, color)) {
             return true;
         }
-
-        // pont
         if (x % 2 != 0) {
-            return isColor(x, 0, couleur) && isColor(x, 1, couleur) && isColor(x, 2, couleur);
+            return isColor(x, 0, color) && isColor(x, 1, color) && isColor(x, 2, color);
         }
-
         return false;
     }
 
-    private boolean isColor(int x, int y, Couleur c) {
-        Pion p = plateau.getPion(new Position(x, y));
-        return p != null && p.getCouleur() == c;
+    private boolean isColor(int x, int y, Color c) {
+        Pawn p = board.getPawn(new Position(x, y));
+        return p != null && p.getColor() == c;
     }
 
     private Position askPosition() {
-        // System.out.print("Ligne (0-7) : ");
-        // int x = input.nextInt();
-        // System.out.print("Colonne (0-2) : ");
-        // int y = input.nextInt();
-        // return new Position(x, y);
         int x = -1;
         int y = -1;
-        boolean valide = false;
-        System.out.print("Entrez la position (ligne 0-7, colonne 0-2) : ");
-        // String enter = input.next();
-        while (!valide) {
+        boolean valid = false;
+        System.out.print("Enter position (row 0-7, column 0-2): ");
+        while (!valid) {
             if (!scanner.hasNext()) System.exit(0);
             String enter = scanner.next();
             if (enter.length() == 2) {
@@ -362,30 +320,26 @@ class Jeu extends Controller {
                     x = Character.getNumericValue(c1);
                     y = Character.getNumericValue(c2);
                     if (x >= 0 && x <= 7 && y >= 0 && y <= 2) {
-                        valide = true;
+                        valid = true;
                     }
                 }
-
             }
 
-            if (!valide) {
-                // enter = scanner.next();
+            if (!valid) {
                 if (enter.equalsIgnoreCase("stop")) {
-                    System.out.println("partie arrêté par l'utilisateur");
+                    System.out.println("Game stopped by user");
                     System.exit(0);
                 }
                 System.out.println(enter);
-                System.out.println(
-                        "Entrée invalide. Format attendu: LC (ex: 12 pour ligne 1, col 2) avec L:0-7 et C:0-2.");
+                System.out.println("Invalid input. Expected format: RC (e.g. 12 for row 1, col 2) with R:0-7 and C:0-2.");
             }
         }
-        System.out.println("ligne = " + x);
-        System.out.println("colonne = " + y);
+        System.out.println("Row = " + x);
+        System.out.println("Column = " + y);
         return new Position(x, y);
-
     }
 
-    public void initlook() {
+    public void initLook() {
         if (view.getGameStageView() == null) {
             return;
         }
@@ -395,7 +349,7 @@ class Jeu extends Controller {
         }
     }
 
-    public boolean sontcollé(Position p1, Position p2) {
+    public boolean areAdjacent(Position p1, Position p2) {
         int x = p1.getX(), y = p1.getY(), x2 = p2.getX(), y2 = p2.getY();
 
         if (y == y2) {
@@ -407,35 +361,24 @@ class Jeu extends Controller {
         return false;
     }
 
-//    private boolean checklinecross(int x, Couleur c) {
-//        Pion p1 = plateau.getPion(new Position(x, 0));
-//        Pion p2 = plateau.getPion(new Position(x, 1));
-//        Pion p3 = plateau.getPion(new Position(x, 2));
-//        return p1 != null && p1.getCouleur() == c && p2 != null && p2.getCouleur() == c && p3 != null
-//                && p3.getCouleur() == c;
-//    }
-
-
-
-    public boolean CanBeStolen(Position pos, Couleur couleurAdverse) {
-        Pion pion = plateau.getPion(pos);
-        if (pion == null || pion.getCouleur() != couleurAdverse) return false;
-        if (!estUnMoulin(pos, couleurAdverse)) return true;
-        Joueur adversaire = (Joueur) model.getPlayers().get((model.getIdPlayer() + 1) % 2);
-        return EveryPawnInMill(adversaire);
+    public boolean canBeStolen(Position pos, Color enemyColor) {
+        Pawn pawn = board.getPawn(pos);
+        if (pawn == null || pawn.getColor() != enemyColor) return false;
+        if (!isAMill(pos, enemyColor)) return true;
+        PlayerC opponent = (PlayerC) model.getPlayers().get((model.getIdPlayer() + 1) % 2);
+        return everyPawnInMill(opponent);
     }
 
-    private boolean EveryPawnInMill(Joueur j) {
+    private boolean everyPawnInMill(PlayerC player) {
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
                 Position p = new Position(x, y);
-                Pion pion = plateau.getPion(p);
-                if (pion != null && pion.getCouleur() == j.getCouleur()) {
-                    if (!estUnMoulin(p, j.getCouleur())) return false;
+                Pawn pawn = board.getPawn(p);
+                if (pawn != null && pawn.getColor() == player.getColor()) {
+                    if (!isAMill(p, player.getColor())) return false;
                 }
             }
         }
         return true;
     }
-
 }

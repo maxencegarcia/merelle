@@ -1,41 +1,37 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class StrategieMoulinIA implements StrategieIA {
+
+
+public class StrategyMillAI implements AIStrategy {
 
     private Board board;
     private Game game;
 
-    public StrategieMoulinIA(Board board, Game game) {
+    public StrategyMillAI(Board board, Game game) {
         this.board = board;
         this.game = game;
     }
 
-    // Choix d'une position en phase placement
-    public Position choisirPlacement(Couleur maCouleur, Couleur couleurAdverse) {
-
-        // 1. essayer de faire un moulin
-        Position pos = trouverMoulin(maCouleur);
+    public Position choosePlacement(Color myColor, Color enemyColor) {
+        Position pos = findMill(myColor);
         if (pos != null) return pos;
 
-        // 2. bloquer un moulin adverse
-        pos = trouverMoulin(couleurAdverse);
+        pos = findMill(enemyColor);
         if (pos != null) return pos;
 
-        // 3. jouer une position stratégique
-        int[][] positionsFortes = {
+        int[][] strongPositions = {
                 {1,1}, {3,1}, {5,1}, {7,1},
                 {0,0}, {2,0}, {4,0}, {6,0}
         };
 
-        for (int[] p : positionsFortes) {
+        for (int[] p : strongPositions) {
             Position test = new Position(p[0], p[1]);
             if (board.isEmpty(test)) {
                 return test;
             }
         }
 
-        // 4. sinon première case libre
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
                 Position test = new Position(x, y);
@@ -48,39 +44,32 @@ public class StrategieMoulinIA implements StrategieIA {
         return null;
     }
 
-
-    // Choix d'un déplacement
-    public Position[] choisirDeplacement(PlayerC playerC) {
-
-        for (Pawn pawn : playerC.getPions()) {
+    public Position[] chooseMove(PlayerC player) {
+        for (Pawn pawn : player.getPawns()) {
             if (pawn == null || !pawn.isPlaced()) continue;
 
             Position source = pawn.getPos();
+            List<Position> neighbors = getNeighbors(source);
 
-            List<Position> voisins = getVoisins(source);
-
-            for (Position dest : voisins) {
+            for (Position dest : neighbors) {
                 if (!board.isEmpty(dest)) continue;
 
                 board.movePawn(pawn, source, dest);
-
-                boolean moulin = game.isAMill(dest, playerC.getColor());
-
+                boolean mill = game.isAMill(dest, player.getColor());
                 board.movePawn(pawn, dest, source);
 
-                if (moulin) {
+                if (mill) {
                     return new Position[]{source, dest};
                 }
             }
         }
 
-        // mouvement simple si aucun moulin possible
-        for (Pawn pawn : playerC.getPions()) {
+        for (Pawn pawn : player.getPawns()) {
             if (pawn == null || !pawn.isPlaced()) continue;
 
             Position source = pawn.getPos();
 
-            for (Position dest : getVoisins(source)) {
+            for (Position dest : getNeighbors(source)) {
                 if (board.isEmpty(dest)) {
                     return new Position[]{source, dest};
                 }
@@ -90,59 +79,26 @@ public class StrategieMoulinIA implements StrategieIA {
         return null;
     }
 
-    // Choix du pion a volers
-    public Position choisirVol(Couleur couleurAdverse) {
-
+    public Position chooseSteal(Color enemyColor) {
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
-
                 Position p = new Position(x, y);
                 Pawn pawn = board.getPawn(p);
 
-                if (pawn != null && pawn.getColor() == couleurAdverse) {
-
-                    if (!game.isAMill(p, couleurAdverse)) {
+                if (pawn != null && pawn.getColor() == enemyColor) {
+                    if (!game.isAMill(p, enemyColor)) {
                         return p;
                     }
                 }
             }
         }
-        // sinon prendre n'importe quel pion
-                for (int y = 0; y < 3; y++) {
-                    for (int x = 0; x < 8; x++) {
-
-                        Position p = new Position(x, y);
-                        Pawn pawn = board.getPawn(p);
-
-                        if (pawn != null && pawn.getColor() == couleurAdverse) {
-                            return p;
-                        }
-                    }
-                }
-
-                return null;
-            }
-    // =============================
-    // DETECTER UN MOULIN POSSIBLE
-    // =============================
-
-    private Position trouverMoulin(Couleur couleur) {
 
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
-
                 Position p = new Position(x, y);
+                Pawn pawn = board.getPawn(p);
 
-                if (!board.isEmpty(p)) continue;
-
-                Pawn faux = new Pawn(couleur, 0, null);
-                board.placePawn(faux, p);
-
-                boolean moulin = game.isAMill(p, couleur);
-
-                board.removePawn(p);
-
-                if (moulin) {
+                if (pawn != null && pawn.getColor() == enemyColor) {
                     return p;
                 }
             }
@@ -151,22 +107,40 @@ public class StrategieMoulinIA implements StrategieIA {
         return null;
     }
 
-    // Voisin d'une position
-    private List<Position> getVoisins(Position p) {
+    private Position findMill(Color color) {
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 8; x++) {
+                Position p = new Position(x, y);
 
-        List<Position> voisins = new ArrayList<>();
+                if (!board.isEmpty(p)) continue;
 
+                Pawn fake = new Pawn(color, 0, null);
+                board.placePawn(fake, p);
+                boolean mill = game.isAMill(p, color);
+                board.removePawn(p);
+
+                if (mill) {
+                    return p;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private List<Position> getNeighbors(Position p) {
+        List<Position> neighbors = new ArrayList<>();
         int x = p.getX();
         int y = p.getY();
 
-        voisins.add(new Position((x + 1) % 8, y));
-        voisins.add(new Position((x + 7) % 8, y));
+        neighbors.add(new Position((x + 1) % 8, y));
+        neighbors.add(new Position((x + 7) % 8, y));
 
         if (x % 2 != 0) {
-            if (y > 0) voisins.add(new Position(x, y - 1));
-            if (y < 2) voisins.add(new Position(x, y + 1));
+            if (y > 0) neighbors.add(new Position(x, y - 1));
+            if (y < 2) neighbors.add(new Position(x, y + 1));
         }
 
-        return voisins;
+        return neighbors;
     }
 }

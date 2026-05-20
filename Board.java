@@ -2,30 +2,31 @@ import boardifier.model.ContainerElement;
 import boardifier.model.GameStageModel;
 import boardifier.model.GameElement;
 
-class Plateau extends ContainerElement {
 
-    public Plateau(GameStageModel gameStageModel) {
-        super("plateau", 0, 0, 8, 3, gameStageModel);
+class Board extends ContainerElement {
+
+    public Board(GameStageModel gameStageModel) {
+        super("board", 0, 0, 8, 3, gameStageModel);
     }
 
-    public boolean estValide(Position pos) {
+    public boolean isValid(Position pos) {
         return pos.getX() >= 0 && pos.getX() <= 7 && pos.getY() >= 0 && pos.getY() <= 2;
     }
 
-    public boolean estVide(Position pos) {
-        if (!estValide(pos)) return false;
+    public boolean isEmpty(Position pos) {
+        if (!isValid(pos)) return false;
         return isEmptyAt(pos.getX(), pos.getY());
     }
 
-    public void placerPion(Pion pion, Position pos) {
-        if (estValide(pos)) {
-            addElement(pion, pos.getX(), pos.getY());
-            pion.placer(pos);
+    public void placePawn(Pawn pawn, Position pos) {
+        if (isValid(pos)) {
+            addElement(pawn, pos.getX(), pos.getY());
+            pawn.place(pos);
         }
     }
 
-    public void retirerPion(Position pos) {
-        if (estValide(pos)) {
+    public void removePawn(Position pos) {
+        if (isValid(pos)) {
             GameElement element = getElement(pos.getX(), pos.getY());
             if (element != null) {
                 removeElement(element);
@@ -34,15 +35,15 @@ class Plateau extends ContainerElement {
         }
     }
 
-    public Pion getPion(Position pos) {
-        if (!estValide(pos)) return null;
-        return (Pion) getElement(pos.getX(), pos.getY());
+    public Pawn getPawn(Position pos) {
+        if (!isValid(pos)) return null;
+        return (Pawn) getElement(pos.getX(), pos.getY());
     }
 
-    public void deplacerPion(Pion pion, Position oldPosition, Position newPosition) {
-        if (estValide(newPosition)) {
-            moveElement(pion, newPosition.getX(), newPosition.getY());
-            pion.deplacer(newPosition);
+    public void movePawn(Pawn pawn, Position oldPosition, Position newPosition) {
+        if (isValid(newPosition)) {
+            moveElement(pawn, newPosition.getX(), newPosition.getY());
+            pawn.move(newPosition);
         }
     }
 }

@@ -2,31 +2,31 @@ import boardifier.model.GameElement;
 import boardifier.model.ElementTypes;
 import boardifier.model.GameStageModel;
 
-class Pion extends GameElement {
-    private Couleur couleur;
+class Pawn extends GameElement {
+    private Color color;
     private Position pos;
-    private int numero;
+    private int number;
 
-    public Pion(Couleur couleur, int numero, GameStageModel gameStageModel) {
+    public Pawn(Color color, int number, GameStageModel gameStageModel) {
         super(gameStageModel, ElementTypes.getType("sprite"));
-        this.numero = numero;
-        this.couleur = couleur;
+        this.number = number;
+        this.color = color;
         this.pos = null;
     }
 
-    public void placer(Position pos) {
+    public void place(Position pos) {
         this.pos = pos;
     }
 
-    public void deplacer(Position newPos) {
+    public void move(Position newPos) {
         this.pos = newPos;
     }
 
-    public boolean estPlace() {
+    public boolean isPlaced() {
         return this.pos != null;
     }
 
-    public Couleur getCouleur() { return this.couleur; }
-    public int getNumero() { return this.numero; }
+    public Color getColor() { return this.color; }
+    public int getNumber() { return this.number; }
     public Position getPos() { return this.pos; }
 }

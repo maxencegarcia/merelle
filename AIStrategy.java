@@ -1,5 +1,6 @@
-public interface StrategieIA {
-    Position choisirPlacement(Couleur maCouleur, Couleur couleurAdverse);
-    Position[] choisirDeplacement(PlayerC playerC);
-    Position choisirVol(Couleur couleurAdverse);
+
+public interface AIStrategy {
+    Position choosePlacement(Color myColor, Color enemyColor);
+    Position[] chooseMove(PlayerC player);
+    Position chooseSteal(Color enemyColor);
 }

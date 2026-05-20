@@ -1,79 +1,72 @@
 import boardifier.model.Player;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.Map;
 
-class Joueur extends Player{
-    private static final Map<Player, Joueur> registry = new HashMap<>();
+class PlayerC extends Player {
+    private static final Map<Player, PlayerC> registry = new HashMap<>();
 
-    // private Player player;
-    private Couleur couleur;
-    private Pion[] pions;
-    private int pionsRestants;
+    private Color color;
+    private Pawn[] pawns;
+    private int remainingPawns;
 
-    public Joueur(String nom, Couleur couleur, int nombrePions, boardifier.model.GameStageModel stageModel) {
-        this(Player.HUMAN, nom, couleur, nombrePions, stageModel);
+    public PlayerC(String name, Color color, int pawnCount, boardifier.model.GameStageModel stageModel) {
+        this(Player.HUMAN, name, color, pawnCount, stageModel);
     }
 
-    public Joueur(int type,String nom, Couleur couleur, int nombrePions, boardifier.model.GameStageModel stageModel) {
-        // this.player = Player.createHumanPlayer(nom);
-        super(type, nom);
-        this.couleur = couleur;
-        this.pions = new Pion[nombrePions];
-        this.pionsRestants = nombrePions;
+    public PlayerC(int type, String name, Color color, int pawnCount, boardifier.model.GameStageModel stageModel) {
+        super(type, name);
+        this.color = color;
+        this.pawns = new Pawn[pawnCount];
+        this.remainingPawns = pawnCount;
 
-        for (int i = 0; i < nombrePions; i++) {
-            pions[i] = new Pion(couleur, i + 1, stageModel);
+        for (int i = 0; i < pawnCount; i++) {
+            pawns[i] = new Pawn(color, i + 1, stageModel);
         }
-
-        // registry.put(this.player, this);
     }
 
-    // public Player getPlayer() {
-    //     return this.player;
-    // }
-
-    public static Joueur fromPlayer(Player p) {
+    public static PlayerC fromPlayer(Player p) {
         return registry.get(p);
     }
 
-    public String getNom() {
+    public String getName() {
         return name;
     }
 
-    public Couleur getCouleur() {
-        return couleur;
+    public Color getColor() {
+        return color;
     }
 
-    public int getPionsRestants() {
-        return pionsRestants;
+    public int getRemainingPawns() {
+        return remainingPawns;
     }
-    public Pion[] getPions() {return pions;}
 
-    public Pion getPionNonPlace() {
-        for (Pion pion : pions) {
-            if (pion != null && !pion.estPlace()) {
-                pionsRestants--;
-                return pion;
+    public Pawn[] getPawns() { return pawns; }
+
+    public Pawn getUnplacedPawn() {
+        for (Pawn pawn : pawns) {
+            if (pawn != null && !pawn.isPlaced()) {
+                remainingPawns--;
+                return pawn;
             }
         }
         return null;
     }
 
-    public int compterPions() {
+    public int countPawns() {
         int count = 0;
-        for (Pion pion : pions) {
-            if (pion != null && pion.estPlace()) {
+        for (Pawn pawn : pawns) {
+            if (pawn != null && pawn.isPlaced()) {
                 count++;
             }
         }
         return count;
     }
 
-    public void retirerPion(Pion victime) {
-        for (int i = 0; i < pions.length; i++) {
-            if (pions[i] == victime) {
-                pions[i] = null;
+    public void removePawn(Pawn victim) {
+        for (int i = 0; i < pawns.length; i++) {
+            if (pawns[i] == victim) {
+                pawns[i] = null;
                 return;
             }
         }
