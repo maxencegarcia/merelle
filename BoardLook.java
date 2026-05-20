@@ -37,7 +37,7 @@ public class BoardLook extends ContainerLook {
                 if (Character.isDigit(ch) && c < 29 && Character.isDigit(T[r].charAt(c+1))) {
                     int x = ch - '0', y = T[r].charAt(c+1) - '0';
                     Pawn p = board.getPawn(new Position(x, y));
-                    shape[r][c] = (p == null) ? String.valueOf(ch) : (p.getColor() == Color.WHITE ? "W" : "B");
+                    shape[r][c] = (p == null) ? String.valueOf(ch) : (p.getColor() == Color.WHITE ? "\u001B[95m" +"W" + "\u001B[0m" : "\u001B[94m"+ "B"+ "\u001B[0m"); // Wisteria et Baby Blue
                     shape[r][c+1] = (p == null) ? String.valueOf(T[r].charAt(c+1)) : " ";
                     c++;
                 } else {
