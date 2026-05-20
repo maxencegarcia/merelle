@@ -25,7 +25,7 @@ class Game extends Controller {
         if (diff == 1) {
             return new StrategyMillAI(board, this);
         } else {
-            return new AdvancedMillAI(board, this);
+            return new StrategyDEFAI(board, this);
         }
     }
 
