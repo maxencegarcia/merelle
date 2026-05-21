@@ -6,39 +6,53 @@ public class StrategyMillAI implements AIStrategy {
     private Board board;
     private Game game;
 
+    // mémorisation du dernier moulin
+    private Position lastMillFrom = null;
+    private Position lastMillTo = null;
+
     public StrategyMillAI(Board board, Game game) {
         this.board = board;
         this.game = game;
     }
 
-    // Phase placement
+    // Phase de placement
+    @Override
     public Position choosePlacement(
             Color myColor,
             Color enemyColor) {
 
-        // 1. faire un moulin
-        Position pos = findMill(myColor);
+        // 1. faire moulin si l'adversaire
+        // ne peut pas répondre directement
 
-        if (pos != null
-                && !enemyCanMillAfter(
-                        pos,
+        Position attack =
+                findSafeMill(
                         myColor,
-                        enemyColor)) {
+                        enemyColor);
 
-            return pos;
+        if (attack != null) {
+            return attack;
         }
 
         // 2. bloquer moulin adverse
-        pos = findMill(enemyColor);
 
-        if (pos != null) {
-            return pos;
+        Position block =
+                findMill(enemyColor);
+
+        if (block != null) {
+            return block;
         }
 
-        // 3. positions fortes sûres
+        // 3. positions stratégiques
+
         int[][] strongPositions = {
-                {1,1}, {3,1}, {5,1}, {7,1},
-                {0,0}, {2,0}, {4,0}, {6,0}
+                {1,1},
+                {3,1},
+                {5,1},
+                {7,1},
+                {0,0},
+                {2,0},
+                {4,0},
+                {6,0}
         };
 
         for (int[] p : strongPositions) {
@@ -56,7 +70,8 @@ public class StrategyMillAI implements AIStrategy {
             }
         }
 
-        // 4. première case libre sûre
+        // 4. première position sûre
+
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
 
@@ -75,6 +90,7 @@ public class StrategyMillAI implements AIStrategy {
         }
 
         // 5. fallback
+
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
 
@@ -90,18 +106,32 @@ public class StrategyMillAI implements AIStrategy {
         return null;
     }
 
-    // Phase deplacement
+    // Phase de deplacement
+    @Override
     public Position[] chooseMove(PlayerC player) {
 
-        // faire moulin
+        Color myColor =
+                player.getColor();
+
+        Color enemyColor =
+                (myColor == Color.WHITE)
+                        ? Color.BLACK
+                        : Color.WHITE;
+
+        Position[] bestMove = null;
+
+        int bestScore = -9999;
+
         for (Pawn pawn : player.getPawns()) {
 
             if (pawn == null
                     || !pawn.isPlaced()) {
+
                 continue;
             }
 
-            Position source = pawn.getPos();
+            Position source =
+                    pawn.getPos();
 
             List<Position> neighbors =
                     getNeighbors(source);
@@ -112,62 +142,132 @@ public class StrategyMillAI implements AIStrategy {
                     continue;
                 }
 
+                // simulation
+
                 board.movePawn(
                         pawn,
                         source,
                         dest);
 
-                boolean mill =
+                boolean createsMill =
                         game.isAMill(
                                 dest,
-                                player.getColor());
+                                myColor);
+
+                // Interdiction du moulin tournant
+                boolean forbiddenMill = false;
+
+                if (createsMill
+                        && lastMillFrom != null
+                        && lastMillTo != null) {
+
+                    boolean sameMillReverse =
+                            source.equals(lastMillTo)
+                            && dest.equals(lastMillFrom);
+
+                    boolean sameMillForward =
+                            source.equals(lastMillFrom)
+                            && dest.equals(lastMillTo);
+
+                    if (sameMillReverse
+                            || sameMillForward) {
+
+                        forbiddenMill = true;
+                    }
+                }
+
+                // Evaluation
+                int score = 0;
+
+                // moulin
+                if (createsMill
+                        && !forbiddenMill) {
+
+                    score += 100;
+                }
+
+                // centre
+                if (dest.getY() == 1) {
+                    score += 15;
+                }
+
+                // connexions
+                if (dest.getX() % 2 != 0) {
+                    score += 10;
+                }
+
+                // éviter moulin adverse
+
+                if (enemyCanMillNow(enemyColor)) {
+                    score -= 80;
+                }
 
                 board.movePawn(
                         pawn,
                         dest,
                         source);
 
-                if (mill) {
-                    return new Position[]{
-                            source,
-                            dest
-                    };
+                // Meilleur coup
+                if (score > bestScore) {
+
+                    bestScore = score;
+
+                    bestMove =
+                            new Position[]{
+                                    source,
+                                    dest
+                            };
                 }
             }
         }
 
-        // déplacement simple
-        for (Pawn pawn : player.getPawns()) {
+        // Memoriser moulin
+        if (bestMove != null) {
 
-            if (pawn == null
-                    || !pawn.isPlaced()) {
-                continue;
-            }
+            Pawn pawn =
+                    board.getPawn(bestMove[0]);
 
-            Position source =
-                    pawn.getPos();
+            board.movePawn(
+                    pawn,
+                    bestMove[0],
+                    bestMove[1]);
 
-            for (Position dest :
-                    getNeighbors(source)) {
+            boolean mill =
+                    game.isAMill(
+                            bestMove[1],
+                            myColor);
 
-                if (board.isEmpty(dest)) {
+            board.movePawn(
+                    pawn,
+                    bestMove[1],
+                    bestMove[0]);
 
-                    return new Position[]{
-                            source,
-                            dest
-                    };
-                }
+            if (mill) {
+
+                lastMillFrom =
+                        bestMove[0];
+
+                lastMillTo =
+                        bestMove[1];
+
+            } else {
+
+                lastMillFrom = null;
+                lastMillTo = null;
             }
         }
 
-        return null;
+        return bestMove;
     }
 
     // Phase vol
+    @Override
     public Position chooseSteal(
             Color enemyColor) {
 
-        // hors moulin
+        // priorité :
+        // pion hors moulin
+
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
 
@@ -191,7 +291,8 @@ public class StrategyMillAI implements AIStrategy {
             }
         }
 
-        // sinon n'importe lequel
+        // sinon premier pion
+
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 8; x++) {
 
@@ -213,7 +314,7 @@ public class StrategyMillAI implements AIStrategy {
         return null;
     }
 
-    // Detecter moulin
+    // Trouver moulin
     private Position findMill(Color color) {
 
         for (int y = 0; y < 3; y++) {
@@ -250,26 +351,57 @@ public class StrategyMillAI implements AIStrategy {
         return null;
     }
 
-    // Eviter moulin adverse
+    // Moulin sécuriser
+    private Position findSafeMill(
+            Color myColor,
+            Color enemyColor) {
+
+        Position mill =
+                findMill(myColor);
+
+        if (mill == null) {
+            return null;
+        }
+
+        if (!enemyCanMillAfter(
+                mill,
+                myColor,
+                enemyColor)) {
+
+            return mill;
+        }
+
+        return null;
+    }
+
+    // Verif si l'ennemi peut moulin
     private boolean enemyCanMillAfter(
             Position posIA,
             Color myColor,
             Color enemyColor) {
 
-        Pawn fakeIA =
+        Pawn fake =
                 new Pawn(
                         myColor,
                         0,
                         null);
 
-        board.placePawn(fakeIA, posIA);
+        board.placePawn(fake, posIA);
 
-        Position enemyMill =
-                findMill(enemyColor);
+        boolean result =
+                enemyCanMillNow(enemyColor);
 
         board.removePawn(posIA);
 
-        return enemyMill != null;
+        return result;
+    }
+
+    // Check moulin immediat
+    private boolean enemyCanMillNow(
+            Color enemyColor) {
+
+        return findMill(enemyColor)
+                != null;
     }
 
     // Voisins
