@@ -52,7 +52,6 @@ public class GameTest {
         Position p2 = new Position(1, 0);
         assertTrue(game.areAdjacent(p1, p2), "0,0 et 1,0 doivent être adjacents");
 
-        // Test du wrap-around (le cercle se referme entre 7 et 0)
         Position p3 = new Position(7, 2);
         Position p4 = new Position(0, 2);
         assertTrue(game.areAdjacent(p3, p4), "7,2 et 0,2 doivent être adjacents (boucle)");
