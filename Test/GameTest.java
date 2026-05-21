@@ -103,15 +103,9 @@ public class GameTest {
         Field phaseField = Game.class.getDeclaredField("currentPhase");
         phaseField.setAccessible(true);
         phaseField.set(game, Phase.MOVE);
-
         when(model.getPlayers()).thenReturn(Arrays.asList(player1, player2));
-
         when(player1.countPawns()).thenReturn(2);
         when(player1.getRemainingPawns()).thenReturn(0);
-
-        when(player2.countPawns()).thenReturn(5);
-        when(player2.getRemainingPawns()).thenReturn(0);
-
         assertTrue(game.isGameOver(), "Le jeu doit se terminer si un joueur a moins de 3 pions restants en tout");
     }
 
