@@ -12,6 +12,8 @@ class Game extends Controller {
     private Phase currentPhase;
     private Phase previousPhase;
     private Scanner scanner;
+    Position[] olddest = new Position[2];
+    Position[] oldsource = new Position[2];
     private AIStrategy[] strategies = new AIStrategy[2];
 
     public Game(Model model, View view, Scanner scanner) {
@@ -169,12 +171,19 @@ class Game extends Controller {
     public void playMove() {
         PlayerC player = (PlayerC) model.getCurrentPlayer();
         Character paw;
+        boolean repetitive = false;
+        boolean validmove = false;
+        int id = model.getIdPlayer();
+        
         if (player.getColor() == Color.WHITE) {
             paw = 'W';
         } else paw = 'B';
         System.out.println("It's time for " + player.getName() + " to play the move phase. Your pawn is: " + paw);
 
         Position source, dest;
+        // while (!validmove) {
+            
+        // }
         if (player.getType() == boardifier.model.Player.COMPUTER) {
             try {
                 TimeUnit.SECONDS.sleep(1);
@@ -199,6 +208,9 @@ class Game extends Controller {
             source = askPosition();
             System.out.println("Destination: ");
             dest = askPosition();
+            // if (olddest != null && oldsource != null) {
+            //     System.out.println(olddest.getX() + " " + olddest.getY() + " " + oldsource.getX() + " " + oldsource.getY());
+            // }
         }
 
         Pawn pawn = board.getPawn(source);
@@ -209,20 +221,38 @@ class Game extends Controller {
             } else if (areAdjacent(source, dest)) {
                 canMove = true;
             }
+            if (olddest[id] != null && oldsource[id] != null) {
+                if (olddest[id].getX() == source.getX() && olddest[id].getY() == source.getY() && oldsource[id].getX() == dest.getX() && oldsource[id].getY() == dest.getY()) {
+                    canMove = false;
+                    repetitive = true;
+                    System.out.println("illegal move you can't do the same mill");
+                }
+            }
             if (canMove) {
                 board.movePawn(pawn, source, dest);
+                oldsource[id] = source;
+                olddest[id] = dest; 
                 if (isAMill(dest, player.getColor())) {
                     previousPhase = Phase.MOVE;
                     currentPhase = Phase.STEAL;
                 } else {
+                    
                     model.setNextPlayer();
                 }
-            } else {
+            } else { if (repetitive == false && canMove ==false) {
                 System.out.println("Non-adjacent move");
+            }
+                
             }
         } else {
             System.out.println("Invalid move");
         }
+    }
+    public void saveoldsource(Position source){
+        
+    }
+    public void saveolddest(Position destination){
+
     }
 
     public void playSteal() {
