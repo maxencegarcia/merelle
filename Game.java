@@ -14,6 +14,8 @@ class Game extends Controller {
     private Scanner scanner;
     Position[] olddest = new Position[2];
     Position[] oldsource = new Position[2];
+    Position[] oldolddest = new Position[2];
+    Position[] oldoldsource = new Position[2];
     private AIStrategy[] strategies = new AIStrategy[2];
 
     public Game(Model model, View view, Scanner scanner) {
@@ -222,21 +224,25 @@ class Game extends Controller {
                 canMove = true;
             }
             if (olddest[id] != null && oldsource[id] != null) {
-                if (olddest[id].getX() == source.getX() && olddest[id].getY() == source.getY() && oldsource[id].getX() == dest.getX() && oldsource[id].getY() == dest.getY()) {
-                    canMove = false;
-                    repetitive = true;
-                    System.out.println("illegal move you can't do the same mill");
+                if (olddest[id].getX() == source.getX() && olddest[id].getY() == source.getY()&& oldsource[id].getX() == dest.getX() && oldsource[id].getY() == dest.getY()) {
+                    board.movePawn(pawn, source, dest);
+                    boolean wouldBeMill = isAMill(dest, player.getColor()); 
+                    board.movePawn(pawn, dest, source); 
+                    if (wouldBeMill) {
+                        canMove = false;
+                        repetitive = true;
+                        System.out.println("illegal move: you can't re-create the same mill");
+                    }
                 }
             }
             if (canMove) {
                 board.movePawn(pawn, source, dest);
                 oldsource[id] = source;
-                olddest[id] = dest; 
+                olddest[id] = dest;
                 if (isAMill(dest, player.getColor())) {
                     previousPhase = Phase.MOVE;
                     currentPhase = Phase.STEAL;
                 } else {
-                    
                     model.setNextPlayer();
                 }
             } else { if (repetitive == false && canMove ==false) {
@@ -248,12 +254,7 @@ class Game extends Controller {
             System.out.println("Invalid move");
         }
     }
-    public void saveoldsource(Position source){
-        
-    }
-    public void saveolddest(Position destination){
-
-    }
+    
 
     public void playSteal() {
         PlayerC currentPlayer = (PlayerC) model.getCurrentPlayer();
