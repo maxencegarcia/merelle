@@ -68,6 +68,29 @@ public class GameTest {
         assertFalse(game.areAdjacent(p3, p4), "0,0 and 0,1 must not be adjacent (corner)");
     }
 
+    @Test
+    void testPlayMove_InvalidMove_NonAdjacent() {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(player1.countPawns()).thenReturn(5);
+        when(model.getIdPlayer()).thenReturn(0);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "42");
+
+        Pawn whitePawn = mock(Pawn.class);
+        when(whitePawn.getColor()).thenReturn(Color.WHITE);
+
+        when(board.getPawn(argThat(p -> p.getX() == 0 && p.getY() == 0))).thenReturn(whitePawn);
+        when(board.isEmpty(argThat(p -> p.getX() == 4 && p.getY() == 2))).thenReturn(true);
+
+        game.playMove();
+
+        verify(board, never()).movePawn(any(Pawn.class), any(Position.class), any(Position.class));
+        verify(model, never()).setNextPlayer();
+    }
+
 
     @Test
     void testIsAMill_HorizontalMill() {
@@ -86,6 +109,46 @@ public class GameTest {
         assertTrue(game.isAMill(new Position(2, 0), Color.WHITE), "Should detect mill at the end (2)");
 
         assertFalse(game.isAMill(new Position(1, 0), Color.BLACK), "Should not detect a black mill if the pawns are white");
+    }
+
+    @Test
+    void testPlayMove_InvalidMove_RepetitiveMill() throws Exception {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(player1.countPawns()).thenReturn(5);
+        when(model.getIdPlayer()).thenReturn(0);
+
+        Field oldSourceField = Game.class.getDeclaredField("oldsource");
+        oldSourceField.setAccessible(true);
+        Position[] oldSources = new Position[2];
+        oldSources[0] = new Position(1, 0);
+        oldSourceField.set(game, oldSources);
+
+        Field oldDestField = Game.class.getDeclaredField("olddest");
+        oldDestField.setAccessible(true);
+        Position[] oldDests = new Position[2];
+        oldDests[0] = new Position(0, 0);
+        oldDestField.set(game, oldDests);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "10");
+
+        Pawn whitePawn = mock(Pawn.class);
+        when(whitePawn.getColor()).thenReturn(Color.WHITE);
+
+        when(board.getPawn(argThat(p -> p.getX() == 0 && p.getY() == 0))).thenReturn(whitePawn);
+        when(board.isEmpty(argThat(p -> p.getX() == 1 && p.getY() == 0))).thenReturn(true);
+
+        when(board.getPawn(argThat(p -> p.getX() == 1 && p.getY() == 1))).thenReturn(whitePawn);
+        when(board.getPawn(argThat(p -> p.getX() == 1 && p.getY() == 2))).thenReturn(whitePawn);
+
+        game.playMove();
+
+        verify(board).movePawn(eq(whitePawn), argThat(p -> p.getX() == 0), argThat(p -> p.getX() == 1));
+        verify(board).movePawn(eq(whitePawn), argThat(p -> p.getX() == 1), argThat(p -> p.getX() == 0));
+
+        verify(model, never()).setNextPlayer();
     }
 
     @Test
@@ -123,5 +186,196 @@ public class GameTest {
         when(board.getPawn(target)).thenReturn(whitePawn);
 
         assertFalse(game.canBeStolen(target, Color.BLACK), "Should return false if pawn color doesn't match enemyColor");
+    }
+
+
+    @Test
+    void testIsGameOver_LessThanTwoPlayers() {
+        when(model.getPlayers()).thenReturn(Arrays.asList(player1));
+        assertFalse(game.isGameOver(), "Should return false if there are less than 2 players.");
+    }
+
+    @Test
+    void testCanBeStolen_ProtectedByMill() {
+        Position targetInMill = new Position(0, 0);
+        Position freePawnPos = new Position(5, 0);
+
+        Pawn blackPawn = mock(Pawn.class);
+        when(blackPawn.getColor()).thenReturn(Color.BLACK);
+
+        when(board.getPawn(any(Position.class))).thenAnswer(invocation -> {
+            Position pos = invocation.getArgument(0);
+            int x = pos.getX();
+            int y = pos.getY();
+            if (y == 0 && (x == 0 || x == 1 || x == 2 || x == 5)) {
+                return blackPawn;
+            }
+            return null;
+        });
+
+        when(model.getIdPlayer()).thenReturn(0);
+        when(model.getPlayers()).thenReturn(Arrays.asList(player1, player2));
+        when(player2.getColor()).thenReturn(Color.BLACK);
+        assertFalse(game.canBeStolen(targetInMill, Color.BLACK), "Should not steal a pawn in a mill if other pawns are available.");
+
+        assertTrue(game.canBeStolen(freePawnPos, Color.BLACK), "Should be able to steal a pawn that is not in a mill.");
+    }
+
+    @Test
+    void testPlayMove_InvalidMove_WrongColor() {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(model.getIdPlayer()).thenReturn(0);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "10");
+        Pawn blackPawn = mock(Pawn.class);
+        when(blackPawn.getColor()).thenReturn(Color.BLACK);
+        when(board.getPawn(any(Position.class))).thenAnswer(inv -> {
+            Position p = inv.getArgument(0);
+            if (p.getX() == 0 && p.getY() == 0) return blackPawn;
+            return null;
+        });
+
+        game.playMove();
+        verify(board, never()).movePawn(any(Pawn.class), any(Position.class), any(Position.class));
+    }
+
+    @Test
+    void testPlayMove_CreatesMill_TransitionsToSteal() throws Exception {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(player1.countPawns()).thenReturn(9);
+        when(model.getIdPlayer()).thenReturn(0);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "10");
+
+        Pawn whitePawn = mock(Pawn.class);
+        when(whitePawn.getColor()).thenReturn(Color.WHITE);
+
+        when(board.getPawn(any(Position.class))).thenAnswer(inv -> {
+            Position p = inv.getArgument(0);
+            if (p.getX() == 0 && p.getY() == 0) return whitePawn;
+            if (p.getX() == 1 && p.getY() == 0) return whitePawn;
+            if (p.getX() == 1 && (p.getY() == 1 || p.getY() == 2)) return whitePawn;
+            return null;
+        });
+
+        when(board.isEmpty(argThat(p -> p.getX() == 1 && p.getY() == 0))).thenReturn(true);
+
+        game.playMove();
+        verify(board).movePawn(eq(whitePawn), argThat(p -> p.getX() == 0), argThat(p -> p.getX() == 1));
+        Field phaseField = Game.class.getDeclaredField("currentPhase");
+        phaseField.setAccessible(true);
+        Object currentPhase = phaseField.get(game);
+        assertEquals("STEAL", currentPhase.toString(), "Phase should transition to STEAL after a mill is formed.");
+    }
+
+    @Test
+    void testAskPosition_InputValidation() throws Exception {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+
+        when(scanner.hasNext()).thenReturn(true, true, true);
+        when(scanner.next()).thenReturn("aa", "99", "12");
+
+        when(board.isEmpty(any(Position.class))).thenReturn(false);
+        game.playPlace();
+        verify(board).isEmpty(argThat(p -> p.getX() == 1 && p.getY() == 2));
+    }
+
+    @Test
+    void testPlayMove_ValidMove_FlyingWithThreePawns() {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(player1.countPawns()).thenReturn(3);
+        when(model.getIdPlayer()).thenReturn(0);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "42");
+
+        Pawn whitePawn = mock(Pawn.class);
+        when(whitePawn.getColor()).thenReturn(Color.WHITE);
+
+        when(board.getPawn(argThat(p -> p.getX() == 0 && p.getY() == 0))).thenReturn(whitePawn);
+        when(board.isEmpty(argThat(p -> p.getX() == 4 && p.getY() == 2))).thenReturn(true);
+
+        game.playMove();
+
+        verify(board).movePawn(eq(whitePawn), argThat(p -> p.getX() == 0), argThat(p -> p.getX() == 4));
+        verify(model).setNextPlayer();
+    }
+
+    @Test
+    void testPlaySteal_InvalidThenValidTarget() throws Exception {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(model.getIdPlayer()).thenReturn(0);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(player1.getName()).thenReturn("Player 1");
+
+        when(model.getPlayers()).thenReturn(Arrays.asList(player1, player2));
+        when(player2.getColor()).thenReturn(Color.BLACK);
+        when(player2.getName()).thenReturn("Player 2");
+
+        Field prevPhaseField = Game.class.getDeclaredField("previousPhase");
+        prevPhaseField.setAccessible(true);
+        prevPhaseField.set(game, Phase.MOVE);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "10");
+        when(board.getPawn(argThat(p -> p.getX() == 0 && p.getY() == 0))).thenReturn(null);
+
+        Pawn blackPawn = mock(Pawn.class);
+        when(blackPawn.getColor()).thenReturn(Color.BLACK);
+        when(board.getPawn(argThat(p -> p.getX() == 1 && p.getY() == 0))).thenReturn(blackPawn);
+
+        game.playSteal();
+        verify(board, never()).removePawn(argThat(p -> p.getX() == 0 && p.getY() == 0));
+
+        verify(board).removePawn(argThat(p -> p.getX() == 1 && p.getY() == 0));
+        verify(player2).removePawn(blackPawn);
+
+        verify(model, times(1)).setNextPlayer();
+    }
+
+    @Test
+    void testPlayMove_UpdatesHistoryCorrectly() throws Exception {
+        when(model.getCurrentPlayer()).thenReturn(player1);
+        when(player1.getColor()).thenReturn(Color.WHITE);
+        when(player1.getType()).thenReturn(boardifier.model.Player.HUMAN);
+        when(player1.countPawns()).thenReturn(5);
+        when(model.getIdPlayer()).thenReturn(0);
+
+        when(scanner.hasNext()).thenReturn(true, true);
+        when(scanner.next()).thenReturn("00", "10");
+
+        Pawn whitePawn = mock(Pawn.class);
+        when(whitePawn.getColor()).thenReturn(Color.WHITE);
+
+        when(board.getPawn(argThat(p -> p.getX() == 0 && p.getY() == 0))).thenReturn(whitePawn);
+        when(board.isEmpty(argThat(p -> p.getX() == 1 && p.getY() == 0))).thenReturn(true);
+
+        game.playMove();
+
+        Field oldSourceField = Game.class.getDeclaredField("oldsource");
+        oldSourceField.setAccessible(true);
+        Position[] oldSources = (Position[]) oldSourceField.get(game);
+
+        Field oldDestField = Game.class.getDeclaredField("olddest");
+        oldDestField.setAccessible(true);
+        Position[] oldDests = (Position[]) oldDestField.get(game);
+
+        assertNotNull(oldSources[0], "oldsource array should be updated");
+        assertEquals(0, oldSources[0].getX());
+        assertEquals(0, oldSources[0].getY());
+
+        assertNotNull(oldDests[0], "olddest array should be updated");
+        assertEquals(1, oldDests[0].getX());
+        assertEquals(0, oldDests[0].getY());
     }
 }
