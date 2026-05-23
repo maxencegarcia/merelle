@@ -128,7 +128,7 @@ class Game extends Controller {
         if (player.getColor() == Color.WHITE) {
             paw = 'W';
         } else paw = 'B';
-        System.out.println("It's time for " + player.getName() + " to play the placement phase. Your pawn is: " + paw + "You have " +player.getRemainingPawns() + " pawns left");
+        System.out.println("It's time for " + player.getName() + " to play the placement phase. Your pawn is: " + paw + ", You have " +player.getRemainingPawns() + " pawns left");
 
         Position pos;
         if (player.getType() == boardifier.model.Player.COMPUTER) {
