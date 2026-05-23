@@ -23,22 +23,28 @@ public class Merelle {
         System.out.println("Computer Versus Computer (3)");
 
         while (!valid) {
-            if (!input.hasNext()) {
+            if (!input.hasNextLine()) {
                 System.out.println("End of input stream. Exiting.");
                 System.exit(0);
             }
-            if (input.hasNextInt()) {
-                gm = input.nextInt();
-                input.nextLine();
 
+            String line = input.nextLine().trim();
+
+            // Vérification de la commande d'arrêt
+            if (line.equalsIgnoreCase("stop")) {
+                System.out.println("Stopping program...");
+                System.exit(0);
+            }
+
+            try {
+                gm = Integer.parseInt(line);
                 if (verif(gm)) {
                     valid = true;
                 } else {
                     System.out.println("Choose a possible gamemode: 1, 2 or 3\n");
                 }
-            } else {
-                System.out.println("Error: Enter one of the following numbers (1, 2 or 3).\n");
-                input.nextLine();
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Enter one of the following numbers (1, 2 or 3), or type 'stop'.\n");
             }
         }
 
@@ -60,7 +66,7 @@ public class Merelle {
 
         StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
         MerelleStageModel stageModel = new MerelleStageModel("main", model);
-        PlayerC player1, player2;
+        PlayerC player1 = null, player2 = null;
         int aiDiff = 1;
         int ai1Diff = 1;
         int ai2Diff = 1;
@@ -80,24 +86,16 @@ public class Merelle {
                 String np = askName(1);
                 player1 = new PlayerC(np, Color.WHITE, 9, stageModel);
                 player2 = new PlayerC(boardifier.model.Player.COMPUTER, "Robert Hue", Color.BLACK, 9, stageModel);
-                System.out.println("Choose AI difficulty:");
-                System.out.println("Level 1 (1)");
-                System.out.println("Level 2 (2)");
-                aiDiff = input.nextInt();
+                aiDiff = askDifficulty("AI");
                 break;
 
             case 3:
                 player1 = new PlayerC(boardifier.model.Player.COMPUTER, randomName(1, 1), Color.WHITE, 9, stageModel);
                 player2 = new PlayerC(boardifier.model.Player.COMPUTER, randomName(2, 1), Color.BLACK, 9, stageModel);
-                System.out.println("Choose AI 1 difficulty:");
-                System.out.println("Level 1 (1)");
-                System.out.println("Level 2 (2)");
-                ai1Diff = input.nextInt();
-                System.out.println("Choose AI 2 difficulty:");
-                System.out.println("Level 1 (1)");
-                System.out.println("Level 2 (2)");
-                ai2Diff = input.nextInt();
+                ai1Diff = askDifficulty("AI 1");
+                ai2Diff = askDifficulty("AI 2");
                 break;
+
             default:
                 return;
         }
@@ -105,13 +103,12 @@ public class Merelle {
         model.getPlayers().add(player1);
         model.getPlayers().add(player2);
         model.setGameStage(stageModel);
+
         if (gm == 1) {
             game.setup();
-        }
-        if (gm == 2) {
+        } else if (gm == 2) {
             game.setup(aiDiff);
-        }
-        if (gm == 3) {
+        } else if (gm == 3) {
             game.setup(ai1Diff, ai2Diff);
         }
 
@@ -136,7 +133,41 @@ public class Merelle {
 
     public static String askName(int nb) {
         System.out.print("Player " + nb + " name: ");
-        return input.nextLine();
+        String name = input.nextLine().trim();
+
+        if (name.equalsIgnoreCase("stop")) {
+            System.out.println("Stopping program...");
+            System.exit(0);
+        }
+
+        return name;
+    }
+
+    public static int askDifficulty(String aiName) {
+        System.out.println("Choose " + aiName + " difficulty:");
+        System.out.println("Level 1 (1)");
+        System.out.println("Level 2 (2)");
+
+        while (true) {
+            if (!input.hasNextLine()) System.exit(0);
+            String line = input.nextLine().trim();
+
+            if (line.equalsIgnoreCase("stop")) {
+                System.out.println("Stopping program...");
+                System.exit(0);
+            }
+
+            try {
+                int diff = Integer.parseInt(line);
+                if (diff == 1 || diff == 2) {
+                    return diff;
+                } else {
+                    System.out.println("Please choose 1 or 2.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Enter 1 or 2, or type 'stop'.");
+            }
+        }
     }
 
     public static String randomName(int slot, int theme) {
