@@ -42,10 +42,15 @@ public class AdvancedMillAITest {
     void testChoosePlacement_BlockEnemyMillIfNoOwnMillPossible() {
         Position targetPos = new Position(2, 1);
 
-        when(board.isEmpty(targetPos)).thenReturn(true);
+        // LENIENT : évite le PotentialStubbingProblem causé par l'égalité
+        // par référence de Position (les new Position() du code source
+        // ne matchent pas ceux du test)
+        lenient().when(board.isEmpty(any(Position.class))).thenReturn(false);
+        lenient().when(board.isEmpty(targetPos)).thenReturn(true);
 
-        when(game.isAMill(any(Position.class), eq(Color.WHITE))).thenReturn(false);
-        when(game.isAMill(targetPos, Color.BLACK)).thenReturn(true);
+        lenient().when(game.isAMill(any(Position.class), eq(Color.WHITE))).thenReturn(false);
+        lenient().when(game.isAMill(any(Position.class), eq(Color.BLACK))).thenReturn(false);
+        lenient().when(game.isAMill(targetPos, Color.BLACK)).thenReturn(true);
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
@@ -95,25 +100,26 @@ public class AdvancedMillAITest {
     @Test
     void testChooseMove_FlyingPhase() {
         PlayerC player = mock(PlayerC.class);
-        Pawn pawn = mock(Pawn.class);
+        Pawn    pawn   = mock(Pawn.class);
 
         Position source = new Position(0, 0);
-        Position dest = new Position(7, 2);
+        Position dest   = new Position(7, 2);
 
+        when(player.getColor()).thenReturn(Color.WHITE);
         when(player.countPawns()).thenReturn(3);
         when(player.getPawns()).thenReturn(new Pawn[]{pawn});
 
         when(pawn.isPlaced()).thenReturn(true);
         when(pawn.getPos()).thenReturn(source);
-
-        when(board.isEmpty(dest)).thenReturn(true);
-        when(game.isAMill(dest, any())).thenReturn(true);
+        when(board.isEmpty(any(Position.class))).thenReturn(false);
+        when(board.isEmpty(eq(dest))).thenReturn(true);
+        when(game.isAMill(eq(dest), eq(Color.WHITE))).thenReturn(true);
 
         Position[] result = ai.chooseMove(player);
 
         assertNotNull(result);
         assertEquals(source, result[0]);
-        assertEquals(dest, result[1], "L'IA doit pouvoir 'voler' vers 7,2 si elle n'a que 3 pions");
+        assertEquals(dest,   result[1], "L'IA doit pouvoir 'voler' vers 7,2 si elle n'a que 3 pions");
     }
 
     @Test
