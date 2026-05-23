@@ -73,7 +73,6 @@ public class GameTest {
     void testIsAMill_HorizontalMill() {
         Pawn p1 = mock(Pawn.class);
         when(p1.getColor()).thenReturn(Color.WHITE);
-
         when(board.getPawn(any(Position.class))).thenAnswer(invocation -> {
             Position pos = invocation.getArgument(0);
             if (pos.getY() == 0 && (pos.getX() == 0 || pos.getX() == 1 || pos.getX() == 2)) {
@@ -82,7 +81,10 @@ public class GameTest {
             return null;
         });
 
-        assertTrue(game.isAMill(new Position(1, 0), Color.WHITE), "Should detect a horizontal mill on 0,1,2");
+        assertTrue(game.isAMill(new Position(0, 0), Color.WHITE), "Should detect mill at the start (0)");
+        assertTrue(game.isAMill(new Position(1, 0), Color.WHITE), "Should detect mill at the center (1)");
+        assertTrue(game.isAMill(new Position(2, 0), Color.WHITE), "Should detect mill at the end (2)");
+
         assertFalse(game.isAMill(new Position(1, 0), Color.BLACK), "Should not detect a black mill if the pawns are white");
     }
 
@@ -119,6 +121,7 @@ public class GameTest {
         Pawn whitePawn = mock(Pawn.class);
         when(whitePawn.getColor()).thenReturn(Color.WHITE);
         when(board.getPawn(target)).thenReturn(whitePawn);
-        assertFalse(game.canBeStolen(target, Color.BLACK), "You can't steal your own pawn.");
+
+        assertFalse(game.canBeStolen(target, Color.BLACK), "Should return false if pawn color doesn't match enemyColor");
     }
 }
