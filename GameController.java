@@ -4,8 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+
 
 public class GameController {
 
@@ -23,8 +25,11 @@ public class GameController {
     @FXML private Label labelRestantsJ2;
     @FXML private Label labelPrisJ2;
     @FXML private TextArea historiqueArea;
+    @FXML private Pane overlayPane;
+    @FXML private Button btnJouer;
     private String modeIA = "";
     private String lastDisplayedMove = "";
+
 
 
 
@@ -33,6 +38,17 @@ public class GameController {
     private Model model;
     private BoardLook boardLook;
     private int tourCount = 0;
+    private static final int[][] INTERSECTIONS = {
+            // {col_shape, row_shape, x_jeu, y_jeu}
+            {0,  0, 0, 0}, {13, 0, 1, 0}, {28, 0, 2, 0},
+            {3,  2, 0, 1}, {13, 2, 1, 1}, {25, 2, 2, 1},
+            {6,  4, 0, 2}, {13, 4, 1, 2}, {22, 4, 2, 2},
+            {0,  6, 7, 0}, {3,  6, 7, 1}, {6,  6, 7, 2},
+            {22, 6, 3, 2}, {25, 6, 3, 1}, {28, 6, 3, 0},
+            {6,  8, 6, 2}, {13, 8, 5, 2}, {22, 8, 4, 2},
+            {3, 10, 6, 1}, {13,10, 5, 1}, {25,10, 4, 1},
+            {0, 12, 6, 0}, {13,12, 5, 0}, {28,12, 4, 0},
+    };
 
     public void init(Game game, Board board, Model model) {
         this.game  = game;
@@ -45,6 +61,7 @@ public class GameController {
         game.setOnUpdate(() -> reloadaffi());
 
         reloadaffi();
+        buildOverlay();
     }
 
     @FXML
@@ -248,6 +265,7 @@ public class GameController {
             labelStatut.setText("Partie terminée ! " + gagnant + " a gagné !");
             historiqueArea.appendText(gagnant + " a gagné !\n");
             inputCoup.setDisable(true);
+            refreshOverlay();
         }
     }
 
@@ -279,6 +297,99 @@ public class GameController {
                     gc.setFill(Color.web("#444444"));
                     gc.fillText(cell, x, y);
                 }
+            }
+        }
+    }
+    private void buildOverlay() {
+        overlayPane.getChildren().clear();
+        double w = boardCanvas.getWidth();   // 340
+        double h = boardCanvas.getHeight();  // 340
+        double cellW = w / boardLook.getWidth();   // 340/30 ≈ 11.33
+        double cellH = h / boardLook.getHeight();  // 340/13 ≈ 26.15
+        double btnSize = Math.min(cellW, cellH) * 1.8; // taille cliquable confortable
+
+        for (int[] inter : INTERSECTIONS) {
+            int shapeCol = inter[0];
+            int shapeRow = inter[1];
+            int xJeu    = inter[2];
+            int yJeu    = inter[3];
+
+            double px = shapeCol * cellW; // pixel X centre
+            double py = shapeRow * cellH; // pixel Y centre
+
+            Button btn = new Button();
+            btn.setPrefSize(btnSize, btnSize);
+            btn.setLayoutX(px - btnSize / 2);
+            btn.setLayoutY(py - btnSize / 2);
+            btn.setOpacity(0); // invisible par défaut
+            btn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+            btn.setUserData(new int[]{xJeu, yJeu});
+
+            btn.setOnAction(e -> {
+                inputCoup.setText("" + xJeu + yJeu);
+                // Simuler le clic sur Jouer
+                handleCoupFromButton();
+            });
+
+            overlayPane.getChildren().add(btn);
+        }
+        refreshOverlay();
+    }
+    // Même logique que handleCoup() mais appelée depuis les boutons
+    private void handleCoupFromButton() {
+        handleCoup(); // réutilise exactement la même méthode !
+    }
+
+    // Appelée après chaque reloadaffi() pour mettre en surbrillance
+    public void refreshOverlay() {
+        Phase phase = game.getCurrentPhase();
+        PlayerC joueur = (PlayerC) model.getCurrentPlayer();
+
+        for (var node : overlayPane.getChildren()) {
+            Button btn = (Button) node;
+            int[] data = (int[]) btn.getUserData();
+            int x = data[0], y = data[1];
+            Position pos = new Position(x, y);
+
+            boolean valide = switch (phase) {
+                case PLACE -> board.isEmpty(pos);
+                case MOVE  -> {
+                    if (pendingSource == null) {
+                        // Surligner les pions du joueur
+                        Pawn p = board.getPawn(pos);
+                        yield p != null && p.getColor() == joueur.getColor();
+                    } else {
+                        // Surligner les destinations adjacentes libres
+                        yield board.isEmpty(pos) &&
+                                (joueur.countPawns() == 3 || game.areAdjacent(pendingSource, pos));
+                    }
+                }
+                case STEAL -> {
+                    int oppId = (model.getIdPlayer() + 1) % 2;
+                    PlayerC opp = (PlayerC) model.getPlayers().get(oppId);
+                    yield game.canBeStolen(pos, opp.getColor());
+                }
+            };
+
+            if (valide) {
+                btn.setOpacity(1);
+                btn.setStyle(
+                        "-fx-background-color: rgba(100,200,100,0.45);" +
+                                "-fx-background-radius: 50%;" +
+                                "-fx-border-color: transparent;"
+                );
+                // Hover
+                btn.setOnMouseEntered(ev ->
+                        btn.setStyle("-fx-background-color: rgba(50,200,50,0.7);" +
+                                "-fx-background-radius: 50%;"));
+                btn.setOnMouseExited(ev ->
+                        btn.setStyle("-fx-background-color: rgba(100,200,100,0.45);" +
+                                "-fx-background-radius: 50%;"));
+            } else {
+                btn.setOpacity(0);
+                btn.setStyle("-fx-background-color: transparent;");
+                btn.setOnMouseEntered(null);
+                btn.setOnMouseExited(null);
             }
         }
     }
