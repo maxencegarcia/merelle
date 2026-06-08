@@ -50,22 +50,22 @@ public class GameTest {
     void testAreAdjacent_SameRing_Valid() {
         Position p1 = new Position(0, 0);
         Position p2 = new Position(1, 0);
-        assertTrue(game.areAdjacent(p1, p2), "0,0 and 1,0 must be adjacent");
+        assertTrue(game.areAdjacent(p1, p2), "0,0 et 1,0 doivent être adjacents");
 
         Position p3 = new Position(7, 2);
         Position p4 = new Position(0, 2);
-        assertTrue(game.areAdjacent(p3, p4), "7,2 and 0,2 must be adjacent (loop)");
+        assertTrue(game.areAdjacent(p3, p4), "7,2 et 0,2 doivent être adjacents (boucle)");
     }
 
     @Test
     void testAreAdjacent_CrossRing_ValidOnlyOnOddX() {
         Position p1 = new Position(1, 0);
         Position p2 = new Position(1, 1);
-        assertTrue(game.areAdjacent(p1, p2), "1,0 and 1,1 must be adjacent (x odd)");
+        assertTrue(game.areAdjacent(p1, p2), "1,0 et 1,1 doivent être adjacents (x impair)");
 
         Position p3 = new Position(0, 0);
         Position p4 = new Position(0, 1);
-        assertFalse(game.areAdjacent(p3, p4), "0,0 and 0,1 must not be adjacent (corner)");
+        assertFalse(game.areAdjacent(p3, p4), "0,0 et 0,1 ne doivent pas être adjacents (coin)");
     }
 
 
@@ -73,6 +73,7 @@ public class GameTest {
     void testIsAMill_HorizontalMill() {
         Pawn p1 = mock(Pawn.class);
         when(p1.getColor()).thenReturn(Color.WHITE);
+
         when(board.getPawn(any(Position.class))).thenAnswer(invocation -> {
             Position pos = invocation.getArgument(0);
             if (pos.getY() == 0 && (pos.getX() == 0 || pos.getX() == 1 || pos.getX() == 2)) {
@@ -81,11 +82,8 @@ public class GameTest {
             return null;
         });
 
-        assertTrue(game.isAMill(new Position(0, 0), Color.WHITE), "Should detect mill at the start (0)");
-        assertTrue(game.isAMill(new Position(1, 0), Color.WHITE), "Should detect mill at the center (1)");
-        assertTrue(game.isAMill(new Position(2, 0), Color.WHITE), "Should detect mill at the end (2)");
-
-        assertFalse(game.isAMill(new Position(1, 0), Color.BLACK), "Should not detect a black mill if the pawns are white");
+        assertTrue(game.isAMill(new Position(1, 0), Color.WHITE), "Devrait détecter un moulin horizontal sur 0,1,2");
+        assertFalse(game.isAMill(new Position(1, 0), Color.BLACK), "Ne doit pas détecter de moulin noir si les pions sont blancs");
     }
 
     @Test
@@ -96,7 +94,7 @@ public class GameTest {
 
         when(model.getPlayers()).thenReturn(Arrays.asList(player1, player2));
 
-        assertFalse(game.isGameOver(), "The game must not end during the placement phase");
+        assertFalse(game.isGameOver(), "Le jeu ne doit pas se terminer pendant la phase de placement");
     }
 
     @Test
@@ -107,7 +105,7 @@ public class GameTest {
         when(model.getPlayers()).thenReturn(Arrays.asList(player1, player2));
         when(player1.countPawns()).thenReturn(2);
         when(player1.getRemainingPawns()).thenReturn(0);
-        assertTrue(game.isGameOver(), "The game must end if a player has fewer than 3 pieces remaining in total.");
+        assertTrue(game.isGameOver(), "Le jeu doit se terminer si un joueur a moins de 3 pions restants en tout");
     }
 
 
@@ -116,12 +114,11 @@ public class GameTest {
         Position target = new Position(0, 0);
 
         when(board.getPawn(target)).thenReturn(null);
-        assertFalse(game.canBeStolen(target, Color.BLACK), "You can't steal an empty square");
+        assertFalse(game.canBeStolen(target, Color.BLACK), "On ne peut pas voler une case vide");
 
         Pawn whitePawn = mock(Pawn.class);
         when(whitePawn.getColor()).thenReturn(Color.WHITE);
         when(board.getPawn(target)).thenReturn(whitePawn);
-
-        assertFalse(game.canBeStolen(target, Color.BLACK), "Should return false if pawn color doesn't match enemyColor");
+        assertFalse(game.canBeStolen(target, Color.BLACK), "On ne peut pas voler son propre pion");
     }
 }

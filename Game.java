@@ -6,6 +6,8 @@ import boardifier.model.Model;
 import boardifier.view.View;
 import boardifier.model.GameException;
 import boardifier.model.Player;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 class Game extends Controller {
     private Board board;
@@ -17,6 +19,12 @@ class Game extends Controller {
     Position[] oldolddest = new Position[2];
     Position[] oldoldsource = new Position[2];
     private AIStrategy[] strategies = new AIStrategy[2];
+    private final BlockingQueue<Position> inputQueue = new LinkedBlockingQueue<>();
+    private Runnable onUpdate;
+    private String lastMove = "";
+
+
+
 
     public Game(Model model, View view, Scanner scanner) {
         super(model, view);
@@ -39,6 +47,9 @@ class Game extends Controller {
             model.getGameStage().addContainer(board);
         }
     }
+    public BlockingQueue<Position> getInputQueue() {
+        return inputQueue;
+    }
 
     public void setup(int diff) {
         if (model.getGameStage() != null) {
@@ -46,6 +57,12 @@ class Game extends Controller {
             model.getGameStage().addContainer(board);
             strategies[1] = createStrategy(diff);
         }
+    }
+    public String getLastMove() {
+        return lastMove;
+    }
+    public void setOnUpdate(Runnable r) {
+        this.onUpdate = r;
     }
 
     public void setup(int diff, int diff2) {
@@ -69,7 +86,6 @@ class Game extends Controller {
 
     int u = 0;
 
-    @Override
     public void stageLoop() {
         while (!model.isEndGame()) {
             if (isGameOver()) {
@@ -78,8 +94,8 @@ class Game extends Controller {
             }
             if (currentPhase == Phase.PLACE) {
                 if (u == 0) {
-                    System.out.println(
-                            "Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
+//                    System.out.println(
+//                            "Welcome to the placement phase, the goal is to place your pieces and form mills before the moving phase, which will happen as soon as all the pieces have been placed.");
                 }
                 playPlace();
             } else if (currentPhase == Phase.MOVE) {
@@ -89,8 +105,10 @@ class Game extends Controller {
                 currentPhase = previousPhase;
             }
             u++;
-            update();
-        }
+            javafx.application.Platform.runLater(() -> {
+
+                if (onUpdate != null) onUpdate.run();
+            });        }
         displayWinner();
     }
 
@@ -116,9 +134,9 @@ class Game extends Controller {
         PlayerC player2 = (PlayerC) model.getPlayers().get(1);
 
         if (player1.countPawns() < 3) {
-            System.out.println(player2.getName() + " wins");
+//            System.out.println(player2.getName() + " wins");
         } else if (player2.countPawns() < 3) {
-            System.out.println(player1.getName() + " wins");
+//            System.out.println(player1.getName() + " wins");
         }
     }
 
@@ -128,7 +146,7 @@ class Game extends Controller {
         if (player.getColor() == Color.WHITE) {
             paw = 'W';
         } else paw = 'B';
-        System.out.println("It's time for " + player.getName() + " to play the placement phase. Your pawn is: " + paw + ", You have " +player.getRemainingPawns() + " pawns left");
+//        System.out.println("It's time for " + player.getName() + " to play the placement phase. Your pawn is: " + paw + "You have " +player.getRemainingPawns() + " pawns left");
 
         Position pos;
         if (player.getType() == boardifier.model.Player.COMPUTER) {
@@ -144,7 +162,7 @@ class Game extends Controller {
             } else {
                 pos = askPosition();
             }
-            System.out.println(player.getName() + " " + pos.getX() + " " + pos.getY());
+//            System.out.println(player.getName() + " " + pos.getX() + " " + pos.getY());
         } else {
             pos = askPosition();
         }
@@ -153,6 +171,7 @@ class Game extends Controller {
             Pawn pawn = player.getUnplacedPawn();
             if (pawn != null) {
                 board.placePawn(pawn, pos);
+                lastMove = pos.getX() + "" + pos.getY(); // ← ajouter
             }
             if (isAMill(pos, player.getColor())) {
                 previousPhase = Phase.PLACE;
@@ -166,7 +185,7 @@ class Game extends Controller {
                 }
             }
         } else {
-            System.out.println("Invalid position");
+//            System.out.println("Invalid position");
         }
     }
 
@@ -180,7 +199,7 @@ class Game extends Controller {
         if (player.getColor() == Color.WHITE) {
             paw = 'W';
         } else paw = 'B';
-        System.out.println("It's time for " + player.getName() + " to play the move phase. Your pawn is: " + paw);
+//        System.out.println("It's time for " + player.getName() + " to play the move phase. Your pawn is: " + paw);
 
         Position source, dest;
         // while (!validmove) {
@@ -198,17 +217,17 @@ class Game extends Controller {
                 moves = currentStrategy.chooseMove(player);
             }
             if (moves == null) {
-                System.out.println(player.getName() + " can't move!");
+//                System.out.println(player.getName() + " can't move!");
                 model.setNextPlayer();
                 return;
             }
             source = moves[0];
             dest = moves[1];
-            System.out.println(player.getName() + " moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
+//            System.out.println(player.getName() + " moves from " + source.getX() + source.getY() + " to " + dest.getX() + dest.getY());
         } else {
-            System.out.println("Source: ");
+//            System.out.println("Source: ");
             source = askPosition();
-            System.out.println("Destination: ");
+//            System.out.println("Destination: ");
             dest = askPosition();
             // if (olddest != null && oldsource != null) {
             //     System.out.println(olddest.getX() + " " + olddest.getY() + " " + oldsource.getX() + " " + oldsource.getY());
@@ -231,12 +250,13 @@ class Game extends Controller {
                     if (wouldBeMill) {
                         canMove = false;
                         repetitive = true;
-                        System.out.println("illegal move: you can't re-create the same mill");
+//                        System.out.println("illegal move: you can't re-create the same mill");
                     }
                 }
             }
             if (canMove) {
                 board.movePawn(pawn, source, dest);
+                lastMove = source.getX() + "" + source.getY() + " → " + dest.getX() + "" + dest.getY(); // ← ajouter
                 oldsource[id] = source;
                 olddest[id] = dest;
                 if (isAMill(dest, player.getColor())) {
@@ -246,13 +266,16 @@ class Game extends Controller {
                     model.setNextPlayer();
                 }
             } else { if (repetitive == false && canMove ==false) {
-                System.out.println("Non-adjacent move");
+//                System.out.println("Non-adjacent move");
             }
                 
             }
         } else {
-            System.out.println("Invalid move");
+//            System.out.println("Invalid move");
         }
+    }
+    public Model getModel() {
+        return model;
     }
     
 
@@ -262,7 +285,7 @@ class Game extends Controller {
         int opponentId = (model.getIdPlayer() + 1) % 2;
         PlayerC opponent = (PlayerC) model.getPlayers().get(opponentId);
 
-        System.out.println("Mill! " + currentPlayer.getName() + ", choose a pawn from " + opponent.getName() + " to remove.");
+//        System.out.println("Mill! " + currentPlayer.getName() + ", choose a pawn from " + opponent.getName() + " to remove.");
 
         boolean stealSucceeded = false;
         while (!stealSucceeded) {
@@ -279,7 +302,7 @@ class Game extends Controller {
                 } else {
                     pos = askPosition();
                 }
-                System.out.println(currentPlayer.getName() + " steals position: " + pos.getX() + pos.getY());
+//                System.out.println(currentPlayer.getName() + " steals position: " + pos.getX() + pos.getY());
             } else {
                 pos = askPosition();
             }
@@ -288,8 +311,9 @@ class Game extends Controller {
                 Pawn victim = board.getPawn(pos);
                 board.removePawn(pos);
                 opponent.removePawn(victim);
+                lastMove = pos.getX() + "" + pos.getY() + " (volé)"; // ← ajouter
 
-                System.out.println("Pawn removed at " + pos.getX() + pos.getY());
+//                System.out.println("Pawn removed at " + pos.getX() + pos.getY());
                 stealSucceeded = true;
                 model.setNextPlayer();
                 if (previousPhase == Phase.PLACE) {
@@ -304,7 +328,7 @@ class Game extends Controller {
                     currentPhase = Phase.MOVE;
                 }
             } else {
-                System.out.println("You can't steal this: invalid target, mill-protected pawn, or your own pawn.");
+//                System.out.println("You can't steal this: invalid target, mill-protected pawn, or your own pawn.");
                 if (currentPlayer.getType() == boardifier.model.Player.COMPUTER) {
                     break;
                 }
@@ -336,38 +360,12 @@ class Game extends Controller {
     }
 
     private Position askPosition() {
-        int x = -1;
-        int y = -1;
-        boolean valid = false;
-        System.out.print("Enter position (row 0-7, column 0-2): ");
-        while (!valid) {
-            if (!scanner.hasNext()) System.exit(0);
-            String enter = scanner.next();
-            if (enter.length() == 2) {
-                char c1 = enter.charAt(0);
-                char c2 = enter.charAt(1);
-
-                if (Character.isDigit(c1) && Character.isDigit(c2)) {
-                    x = Character.getNumericValue(c1);
-                    y = Character.getNumericValue(c2);
-                    if (x >= 0 && x <= 7 && y >= 0 && y <= 2) {
-                        valid = true;
-                    }
-                }
-            }
-
-            if (!valid) {
-                if (enter.equalsIgnoreCase("stop")) {
-                    System.out.println("Game stopped by user");
-                    System.exit(0);
-                }
-                System.out.println(enter);
-                System.out.println("Invalid input. Expected format: RC (e.g. 12 for row 1, col 2) with R:0-7 and C:0-2.");
-            }
+        try {
+            return inputQueue.take(); // bloque jusqu'à ce que le controller envoie une position
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
         }
-        System.out.println("Row = " + x);
-        System.out.println("Column = " + y);
-        return new Position(x, y);
     }
 
     public void initLook() {
@@ -411,5 +409,23 @@ class Game extends Controller {
             }
         }
         return true;
+    }
+
+    public Phase getCurrentPhase() {
+        return currentPhase;
+    }
+
+    public void setCurrentPhase(Phase phase) {
+        this.currentPhase = phase;
+    }
+
+    public void setPreviousPhase(Phase phase) {
+        this.previousPhase = phase;
+    }
+    public Phase getPreviousPhase() {
+        return previousPhase;
+    }
+    public Board getBoard() {
+        return board;
     }
 }

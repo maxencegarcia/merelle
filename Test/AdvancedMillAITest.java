@@ -35,12 +35,16 @@ public class AdvancedMillAITest {
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
-        assertEquals(targetPos, result, "The AI ​​must choose the square that gives it a windmill");
+        assertEquals(targetPos, result, "L'IA doit choisir la case qui lui donne un moulin");
     }
 
     @Test
     void testChoosePlacement_BlockEnemyMillIfNoOwnMillPossible() {
         Position targetPos = new Position(2, 1);
+
+        // LENIENT : évite le PotentialStubbingProblem causé par l'égalité
+        // par référence de Position (les new Position() du code source
+        // ne matchent pas ceux du test)
         lenient().when(board.isEmpty(any(Position.class))).thenReturn(false);
         lenient().when(board.isEmpty(targetPos)).thenReturn(true);
 
@@ -50,7 +54,7 @@ public class AdvancedMillAITest {
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
-        assertEquals(targetPos, result, "The AI ​​must block the opponent's mill if it cannot make one");
+        assertEquals(targetPos, result, "L'IA doit bloquer le moulin adverse si elle ne peut pas en faire un");
     }
 
     @Test
@@ -65,7 +69,7 @@ public class AdvancedMillAITest {
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
-        assertEquals(emptyPos, result, "The AI ​​must fall back on the first empty priority square");
+        assertEquals(emptyPos, result, "L'IA doit se rabattre sur la première case prioritaire vide");
     }
 
     @Test
@@ -89,8 +93,8 @@ public class AdvancedMillAITest {
         Position[] result = ai.chooseMove(player);
 
         assertNotNull(result);
-        assertEquals(source, result[0], "The starting position must be 0,0");
-        assertEquals(dest, result[1], "The arrival position must be 1,0 (mill creation)");
+        assertEquals(source, result[0], "La position de départ doit être 0,0");
+        assertEquals(dest, result[1], "La position d'arrivée doit être 1,0 (création de moulin)");
     }
 
     @Test
@@ -115,7 +119,7 @@ public class AdvancedMillAITest {
 
         assertNotNull(result);
         assertEquals(source, result[0]);
-        assertEquals(dest,   result[1], "The AI ​​should be able to 'fly' to 7.2 if it only has 3 pawns");
+        assertEquals(dest,   result[1], "L'IA doit pouvoir 'voler' vers 7,2 si elle n'a que 3 pions");
     }
 
     @Test
@@ -134,7 +138,7 @@ public class AdvancedMillAITest {
 
         Position[] result = ai.chooseMove(player);
 
-        assertNull(result, "If there are no valid moves, the method must return null");
+        assertNull(result, "S'il n'y a aucun mouvement valide, la méthode doit retourner null");
     }
 
     @Test
@@ -146,7 +150,7 @@ public class AdvancedMillAITest {
 
         Position result = ai.chooseSteal(Color.BLACK);
 
-        assertEquals(target, result, "The AI ​​must steal the pawn from the available priority space");
+        assertEquals(target, result, "L'IA doit voler le pion sur la case prioritaire disponible");
     }
 
     @Test
@@ -160,6 +164,6 @@ public class AdvancedMillAITest {
 
         Position result = ai.chooseSteal(Color.BLACK);
 
-        assertEquals(new Position(0, 0), result, "The AI ​​must fall back on other squares if the priority squares are protected.");
+        assertEquals(new Position(0, 0), result, "L'IA doit se rabattre sur les autres cases si les prioritaires sont protégées");
     }
 }

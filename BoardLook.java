@@ -4,19 +4,19 @@ import boardifier.view.ContainerLook;
 public class BoardLook extends ContainerLook {
     private final Board board;
     private static final String[] T = {
-        "00────────────10────────────20",
-        "│             │             │ ",
-        "│   01────────11────────21  │ ",
-        "│   │         │         │   │ ",
-        "│   │   02────12────22  │   │ ",
-        "│   │   │           │   │   │ ",
-        "70──71──72          32──31──30",
-        "│   │   │           │   │   │ ",
-        "│   │   62────52────42  │   │ ",
-        "│   │         │         │   │ ",
-        "│   61────────51────────41  │ ",
-        "│             │             │ ",
-        "60────────────50────────────40"
+            "00────────────10────────────20",
+            "│             │             │ ",
+            "│   01────────11────────21  │ ",
+            "│   │         │         │   │ ",
+            "│   │   02────12────22  │   │ ",
+            "│   │   │           │   │   │ ",
+            "70──71──72          32──31──30",
+            "│   │   │           │   │   │ ",
+            "│   │   62────52────42  │   │ ",
+            "│   │         │         │   │ ",
+            "│   61────────51────────41  │ ",
+            "│             │             │ ",
+            "60────────────50────────────40"
     };
 
     public BoardLook(Board board) {
@@ -37,7 +37,7 @@ public class BoardLook extends ContainerLook {
                 if (Character.isDigit(ch) && c < 29 && Character.isDigit(T[r].charAt(c+1))) {
                     int x = ch - '0', y = T[r].charAt(c+1) - '0';
                     Pawn p = board.getPawn(new Position(x, y));
-                    shape[r][c] = (p == null) ? String.valueOf(ch) : (p.getColor() == Color.WHITE ? "\u001B[95m" +"W" + "\u001B[0m" : "\u001B[94m"+ "B"+ "\u001B[0m"); // Wisteria et Baby Blue
+                    shape[r][c] = (p == null) ? String.valueOf(ch) : (p.getColor() == Color.WHITE ? "W" : "B"); // Wisteria et Baby Blue
                     shape[r][c+1] = (p == null) ? String.valueOf(T[r].charAt(c+1)) : " ";
                     c++;
                 } else {

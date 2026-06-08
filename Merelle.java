@@ -4,13 +4,17 @@ import boardifier.model.Model;
 import boardifier.view.View;
 import boardifier.control.StageFactory;
 import boardifier.model.GameException;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import boardifier.view.RootPane;
 
-public class Merelle {
+public class Merelle extends Application {
     static final Scanner input = new Scanner(System.in);
+    private static int gamemode;
 
     public static void main(String[] args) {
-        int gm = ask();
-        launch(gm);
+        gamemode = ask();
+        Application.launch(Merelle.class, args);
     }
 
     public static int ask() {
@@ -59,9 +63,11 @@ public class Merelle {
         return gm == 1 || gm == 2 || gm == 3;
     }
 
-    public static void launch(int gm) {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
         Model model = new Model();
-        View view = new View(model);
+        RootPane rootPane = new RootPane();
+        View view = new View(model, primaryStage, rootPane);
         Game game = new Game(model, view, input);
 
         StageFactory.registerModelAndView("main", MerelleStageModel.class.getName(), MerelleStageView.class.getName());
@@ -71,7 +77,7 @@ public class Merelle {
         int ai1Diff = 1;
         int ai2Diff = 1;
 
-        switch (gm) {
+        switch (gamemode) {
             case 1:
                 String np1 = askName(1);
                 String np2 = askName(2);
@@ -104,11 +110,11 @@ public class Merelle {
         model.getPlayers().add(player2);
         model.setGameStage(stageModel);
 
-        if (gm == 1) {
+        if (gamemode == 1) {
             game.setup();
-        } else if (gm == 2) {
+        } else if (gamemode == 2) {
             game.setup(aiDiff);
-        } else if (gm == 3) {
+        } else if (gamemode == 3) {
             game.setup(ai1Diff, ai2Diff);
         }
 
@@ -128,7 +134,12 @@ public class Merelle {
             System.exit(1);
         }
 
-        game.stageLoop();
+        new Thread(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {}
+            game.stageLoop();
+        }).start();
     }
 
     public static String askName(int nb) {
