@@ -63,21 +63,22 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
          <children>
             <Label layoutX="279.0" layoutY="6.0" text="%choosepve" />
             <Label layoutX="123.0" layoutY="85.0" text="%player1" />
              <TextField fx:id="player1Field" layoutX="69.0" layoutY="109.0" />
              <Button fx:id="launchButton" layoutX="283.0" layoutY="305.0" mnemonicParsing="false" onAction="#onlaunchpveclicked" text="%launch" />
-             <ComboBox fx:id="difficultyBox" layoutX="200.0" layoutY="200.0" />
+             <ComboBox fx:id="difficultyBox" layoutX="468.0" layoutY="109.0" />
             <ImageView fitHeight="172.0" fitWidth="74.0" layoutX="111.0" layoutY="133.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="/pictures/p1.png" />
+                  <Image url="/pictures/Player.png" />
                </image>
             </ImageView>
-            <ImageView fitHeight="191.0" fitWidth="62.0" layoutX="468.0" layoutY="133.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="211.0" fitWidth="82.0" layoutX="468.0" layoutY="133.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="/pictures/Screenshot_2026-05-27_10-07-41.png" />
+                  <Image url="/pictures/robot.png" />
                </image>
             </ImageView>
          </children>

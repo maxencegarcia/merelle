@@ -62,7 +62,8 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
          <children>
             <Label layoutX="279.0" layoutY="6.0" text="%choosepvp" />
             <Label layoutX="123.0" layoutY="85.0" text="%player1" />

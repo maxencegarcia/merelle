@@ -168,10 +168,15 @@ public class GameController {
             btn.getStyleClass().remove("empty");
             btn.getStyleClass().remove("white");
             btn.getStyleClass().remove("black");
-            btn.getStyleClass().remove("selected");
+            btn.getStyleClass().remove("selected-white");
+            btn.getStyleClass().remove("selected-black");
 
-            if (boardPositions[i].equals(selectedPosition)) {
-                btn.getStyleClass().add("selected");
+
+
+            if (boardPositions[i].equals(selectedPosition) && pawn.getColor() == Color.WHITE) {
+                btn.getStyleClass().add("selected-white");
+            } else if( boardPositions[i].equals(selectedPosition) && pawn.getColor() == Color.BLACK) {
+                btn.getStyleClass().add("selected-black");
             } else if (pawn == null) {
                 btn.getStyleClass().add("empty");
             } else if (pawn.getColor() == Color.WHITE) {

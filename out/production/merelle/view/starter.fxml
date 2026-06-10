@@ -61,25 +61,26 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
       <children>
-            <Button fx:id="pvpButton" layoutX="128.0" layoutY="241.0" mnemonicParsing="false" onAction="#onpvpclicked" text="%pvp" />
-            <Label layoutX="52.0" layoutY="14.0" text="%gamemode" />
-            <Button fx:id="pveButton" layoutX="293.0" layoutY="241.0" mnemonicParsing="false" onAction="#onpveclicked" text="%pve" />
-            <Button fx:id="eveButton" layoutX="458.0" layoutY="241.0" mnemonicParsing="false" onAction="#oneveclicked" text="%eve" />
-            <ImageView fitHeight="194.0" fitWidth="149.0" layoutX="84.0" layoutY="43.0" pickOnBounds="true" preserveRatio="true">
+            <Button fx:id="pvpButton" layoutX="128.0" layoutY="221.0" mnemonicParsing="false" onAction="#onpvpclicked" text="%pvp" />
+            <Label layoutX="52.0" layoutY="14.0" text="%gamemode" style="-fx-text-fill: #CCCCDD"/>
+            <Button fx:id="pveButton" layoutX="293.0" layoutY="221.0" mnemonicParsing="false" onAction="#onpveclicked" text="%pve" />
+            <Button fx:id="eveButton" layoutX="458.0" layoutY="221.0" mnemonicParsing="false" onAction="#oneveclicked" text="%eve" />
+            <ImageView fitHeight="100.0" fitWidth="149.0" layoutX="84.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="/pictures/Screenshot_2026-05-26_14-42-03.png" />
+                  <Image url="/pictures/PlayerVSPlayer.png" />
                </image>
             </ImageView>
-            <ImageView fitHeight="253.0" fitWidth="143.0" layoutX="249.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="100.0" fitWidth="143.0" layoutX="249.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="/pictures/Screenshot_2026-05-26_14-43-09.png" />
+                  <Image url="/pictures/PlayerVSComputer.png" />
                </image>
             </ImageView>
-            <ImageView fitHeight="223.0" fitWidth="143.0" layoutX="414.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="100.0" fitWidth="143.0" layoutX="414.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="/pictures/Screenshot_2026-05-26_14-44-08.png" />
+                  <Image url="/pictures/ComputerVSComputer.png" />
                </image>
             </ImageView>
       </children>

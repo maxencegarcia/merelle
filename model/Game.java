@@ -328,7 +328,7 @@ public class Game extends Controller {
                 Pawn victim = board.getPawn(pos);
                 board.removePawn(pos);
                 opponent.removePawn(victim);
-                lastMove = pos.getX() + "" + pos.getY() + " (volé)"; // ← ajouter
+                lastMove = pos.getX() + "" + pos.getY() + " (robbed)"; // ← ajouter
 
 //                System.out.println("Pawn removed at " + pos.getX() + pos.getY());
                 stealSucceeded = true;

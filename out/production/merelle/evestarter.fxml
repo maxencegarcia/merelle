@@ -62,7 +62,8 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
          <children>
              <Button fx:id="launchButton" layoutX="283.0" layoutY="305.0" mnemonicParsing="false" onAction="#onlauncheeveclicked" text="%launch" />
              <ComboBox fx:id="difficultyBox" layoutX="100.0" layoutY="200.0" />
