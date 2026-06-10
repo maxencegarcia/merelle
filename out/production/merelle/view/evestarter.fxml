@@ -66,13 +66,18 @@
                 style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
          <children>
              <Button fx:id="launchButton" layoutX="283.0" layoutY="305.0" mnemonicParsing="false" onAction="#onlauncheeveclicked" text="%launch" />
-             <ComboBox fx:id="difficultyBox" layoutX="100.0" layoutY="200.0" />
-             <ComboBox fx:id="difficultyBox2" layoutX="500.0" layoutY="200.0" />
-             <ImageView fitHeight="240.0" fitWidth="174.0" layoutX="233.0" layoutY="51.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="/pictures/Screenshot_2026-05-26_14-44-08.png" />
-               </image>
-            </ImageView>
+             <ComboBox fx:id="difficultyBox" layoutX="120.0" layoutY="109.0" />
+             <ComboBox fx:id="difficultyBox2" layoutX="438.0" layoutY="109.0" />
+             <ImageView fitHeight="172.0" fitWidth="74.0" layoutX="132.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
+                 <image>
+                     <Image url="/pictures/robot.png" />
+                 </image>
+             </ImageView>
+             <ImageView fitHeight="172.0" fitWidth="74.0" layoutX="452.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
+                 <image>
+                     <Image url="/pictures/robot.png" />
+                 </image>
+             </ImageView>
          </children>
     </AnchorPane>
   </children>
