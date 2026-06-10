@@ -7,7 +7,7 @@
   This file is available and licensed under the following license:
 
   Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
+  modification, are permitted provided t/home/ecole/Documents/S2/SAE/SAE2/normalementVF/untitledfolder/post/merellehat the following conditions
   are met:
 
   - Redistributions of source code must retain the above copyright
@@ -44,44 +44,44 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/25.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.StarterController">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="%file">
-          <items>
-            <MenuItem fx:id="newButton" mnemonicParsing="false" onAction="#onnewclicked" text="%new" />
-            <MenuItem mnemonicParsing="false" text="%open" />
-              <MenuItem fx:id="quitButton" mnemonicParsing="false" onAction="#onquitclicked" text="%quit" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="%help">
-          <items>
-                  <MenuItem mnemonicParsing="false" text="%rules" />
-            <MenuItem mnemonicParsing="false" text="%about" />
-          </items>
-        </Menu>
-      </menus>
-    </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS"
-                style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
-         <children>
-            <Label layoutX="279.0" layoutY="6.0" text="%choosepvp" />
-            <Label layoutX="123.0" layoutY="85.0" text="%player1" />
-            <Label layoutX="425.0" layoutY="85.0" text="%player2" />
-            <TextField fx:id="player1Field" layoutX="69.0" layoutY="109.0" />
-            <TextField fx:id="player2Field" layoutX="371.0" layoutY="109.0" />
-            <Button fx:id="launchButton" onAction="#onlaunchpvpclicked" layoutX="283.0" layoutY="305.0" mnemonicParsing="false" text="%launch" />
-            <ImageView fitHeight="172.0" fitWidth="74.0" layoutX="111.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="/pictures/p1.png" />
-               </image>
-            </ImageView>
-            <ImageView fitHeight="162.0" fitWidth="62.0" layoutX="426.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="/pictures/p2t.png" />
-               </image>
-            </ImageView>
-         </children>
-    </AnchorPane>
-  </children>
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="%file">
+                    <items>
+                        <MenuItem fx:id="newButton" mnemonicParsing="false" onAction="#onnewclicked" text="%new" />
+                        <MenuItem mnemonicParsing="false" text="%open" />
+                        <MenuItem fx:id="quitButton" mnemonicParsing="false" onAction="#onquitclicked" text="%quit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="%help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="%rules" />
+                        <MenuItem mnemonicParsing="false" text="%about" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
+            <children>
+                <Label layoutX="100.0" layoutY="10.0" text="%choosepvp" style="-fx-text-fill: #CCCCDD"/>
+                <Label layoutX="120.0" layoutY="85.0" text="%player1" style="-fx-text-fill: #CCCCDD"/>
+                <Label layoutX="430.0" layoutY="85.0" text="%player2" style="-fx-text-fill: #CCCCDD"/>
+                <TextField fx:id="player1Field" layoutX="69.0" layoutY="109.0" />
+                <TextField fx:id="player2Field" layoutX="371.0" layoutY="109.0" />
+                <Button fx:id="launchButton" onAction="#onlaunchpvpclicked" layoutX="283.0" layoutY="305.0" mnemonicParsing="false" text="%launch" />
+                <ImageView fitHeight="172.0" fitWidth="74.0" layoutX="111.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="/pictures/Player.png" />
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="162.0" fitWidth="62.0" layoutX="426.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="/pictures/Player.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </AnchorPane>
+    </children>
 </VBox>
