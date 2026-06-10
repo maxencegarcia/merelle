@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Alert?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="660.0" prefWidth="920.0"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.GameController">
+  <children>
+
+    <!-- Menu bar -->
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="New Game" onAction="#handleNewGame"/>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Quit" onAction="#handleQuit"/>
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About" onAction="#handleAbout"/>
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+
+    <!-- Player and phase bar -->
+    <HBox alignment="CENTER" spacing="24.0" VBox.vgrow="NEVER"
+          style="-fx-background-color: #1E1E2E; -fx-border-color: #333355; -fx-border-width: 0 0 2 0;">
+      <padding><Insets top="10.0" bottom="10.0" left="16.0" right="16.0"/></padding>
+      <Label fx:id="playerLabel"
+             text="Player"
+             style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #7F77DD;"/>
+      <Label fx:id="phaseLabel"
+             text="Phase: Placement"
+             style="-fx-font-size: 14px; -fx-text-fill: #AAAACC; -fx-font-style: italic;"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.18, 0.79"
+               focusTraversable="true"
+               VBox.vgrow="ALWAYS"
+               style="-fx-background-color: #16161E;">
+      <items>
+
+        <!-- Player info panel -->
+        <VBox spacing="6.0" minWidth="145.0"
+              style="-fx-background-color: #1E1E2E;">
+          <padding><Insets top="14.0" left="12.0" right="12.0" bottom="12.0"/></padding>
+
+          <Label text="PLAYERS"
+                 style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #666688; -fx-letter-spacing: 1;"/>
+          <Pane prefHeight="4.0"/>
+
+          <Label text="Beige"
+                 style="-fx-font-size: 13px; -fx-text-fill: #D4B870; -fx-font-weight: bold;"/>
+          <Label fx:id="p1PlacedLabel"    text="Placed: 0 / 9"    style="-fx-font-size: 12px; -fx-text-fill: #CCCCDD;"/>
+          <Label fx:id="p1OnBoardLabel"   text="On board: 0"       style="-fx-font-size: 12px; -fx-text-fill: #CCCCDD;"/>
+          <Label fx:id="p1CapturedLabel"  text="Captured: 0"       style="-fx-font-size: 12px; -fx-text-fill: #CCCCDD;"/>
+
+          <Pane prefHeight="10.0"/>
+
+          <Label text="Black"
+                 style="-fx-font-size: 13px; -fx-text-fill: #AAAAAA; -fx-font-weight: bold;"/>
+          <Label fx:id="p2PlacedLabel"    text="Placed: 0 / 9"    style="-fx-font-size: 12px; -fx-text-fill: #CCCCDD;"/>
+          <Label fx:id="p2OnBoardLabel"   text="On board: 0"       style="-fx-font-size: 12px; -fx-text-fill: #CCCCDD;"/>
+          <Label fx:id="p2CapturedLabel"  text="Captured: 0"       style="-fx-font-size: 12px; -fx-text-fill: #CCCCDD;"/>
+
+          <Pane VBox.vgrow="ALWAYS"/>
+
+          <Label fx:id="messageLabel"
+                 text=""
+                 wrapText="true"
+                 style="-fx-font-size: 12px; -fx-text-fill: #FF6666; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <!-- Center: mill notification + board -->
+        <VBox alignment="CENTER" spacing="8.0"
+              style="-fx-background-color: #16161E;">
+          <padding><Insets top="10.0" left="10.0" right="10.0" bottom="10.0"/></padding>
+
+          <!-- Mill banner (hidden by default) -->
+          <Label fx:id="millLabel"
+                 text=""
+                 visible="false"
+                 wrapText="true"
+                 alignment="CENTER"
+                 maxWidth="360.0"
+                 style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1A1A2E;
+                        -fx-background-color: #FFD700;
+                        -fx-background-radius: 8; -fx-border-color: #CC8800;
+                        -fx-border-width: 2; -fx-border-radius: 8;
+                        -fx-padding: 8 18; -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.4),8,0,0,2);"/>
+
+          <!-- Board: fixed Pane so Canvas and overlay share the same coordinate space -->
+          <Pane prefWidth="360.0" prefHeight="360.0"
+                minWidth="360.0" maxWidth="360.0"
+                minHeight="360.0" maxHeight="360.0">
+            <Canvas fx:id="boardCanvas" width="360.0" height="360.0"
+                    layoutX="0" layoutY="0"/>
+            <Pane fx:id="boardOverlay"
+                  prefWidth="360.0" prefHeight="360.0"
+                  layoutX="0" layoutY="0"
+                  style="-fx-background-color: transparent;"/>
+          </Pane>
+        </VBox>
+
+        <!-- Move history panel -->
+        <VBox spacing="8.0" minWidth="155.0"
+              style="-fx-background-color: #1E1E2E;">
+          <padding><Insets top="14.0" left="12.0" right="12.0" bottom="12.0"/></padding>
+
+          <Label text="HISTORY"
+                 style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #666688;"/>
+
+          <TextArea fx:id="historyArea"
+                    editable="false"
+                    wrapText="true"
+                    style="-fx-font-family: monospace; -fx-font-size: 11px;
+                           -fx-control-inner-background: #12121C; -fx-text-fill: #AAAACC;"
+                    VBox.vgrow="ALWAYS"/>
+        </VBox>
+
+      </items>
+    </SplitPane>
+
+    <!-- Status bar -->
+    <HBox alignment="CENTER_LEFT" spacing="8.0" VBox.vgrow="NEVER"
+          style="-fx-border-color: #333355; -fx-border-width: 2 0 0 0; -fx-background-color: #1E1E2E;">
+      <padding><Insets top="6.0" bottom="6.0" left="12.0" right="12.0"/></padding>
+      <Label fx:id="statusLabel"
+             text="Waiting..."
+             HBox.hgrow="ALWAYS"
+             style="-fx-font-size: 13px; -fx-text-fill: #AAAACC;"/>
+      <Pane HBox.hgrow="ALWAYS"/>
+      <Label fx:id="turnLabel"
+             text="Turn 0"
+             HBox.hgrow="NEVER"
+             style="-fx-font-size: 12px; -fx-text-fill: #666688;"/>
+    </HBox>
+
+  </children>
+</VBox>

@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="lib2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/apiguardian-api-1.1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-jupiter-engine-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-jupiter-api-5.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-jupiter-params-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/opentest4j-1.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-jupiter-api-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/mockito-core-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/byte-buddy-1.14.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-jupiter-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/byte-buddy-agent-1.14.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-platform-commons-1.10.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/objenesis-3.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-platform-commons-1.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/junit-platform-engine-1.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/merelle/lib/mockito-junit-jupiter-5.11.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
