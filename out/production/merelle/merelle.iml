@@ -40,5 +40,6 @@
     <orderEntry type="library" name="mockito.junit.jupiter" level="project" />
     <orderEntry type="library" name="lib1" level="project" />
     <orderEntry type="library" name="lib3" level="project" />
+    <orderEntry type="library" name="lib4" level="project" />
   </component>
 </module>

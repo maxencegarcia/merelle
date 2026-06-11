@@ -320,10 +320,16 @@ private void handleNewGame() {
         p2CapturedLabel.setText("Lost: " + (p2Placed - p2.countPawns()));
 
         if (game.isGameOver()) {
-            String winner = p1.getName();
-            if (p1.countPawns() < 3) {
-                winner = p2.getName();
-            }
+            String winner;
+
+            if (game.getwinner()==null){
+                winner = p1.getName();
+                if (p1.countPawns() < 3) {
+                    winner = p2.getName();
+                }
+            }else winner=game.getwinner();
+
+
             statusLabel.setText("Game Over! " + winner + " wins!");
             millLabel.setVisible(false);
             historyArea.appendText(winner + " won the game!\n");

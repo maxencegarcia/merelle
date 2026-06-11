@@ -7,6 +7,7 @@ import boardifier.model.Model;
 import boardifier.view.View;
 import boardifier.model.GameException;
 import boardifier.model.Player;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import model.Board;
@@ -29,6 +30,7 @@ import model.MerelleStageElementsFactory;
 public class Game extends Controller {
     private Board board;
     private Phase currentPhase;
+    private String winner;
     private Phase previousPhase;
     private Scanner scanner;
     Position[] olddest = new Position[2];
@@ -135,11 +137,24 @@ public class Game extends Controller {
         }
         PlayerC player1 = (PlayerC) model.getPlayers().get(0);
         PlayerC player2 = (PlayerC) model.getPlayers().get(1);
+        if (currentPhase == Phase.MOVE) {
+            if (isblocked(player1)) {
+                winner = player2.getName();
+                return true;
+            }
+            if (isblocked(player2)) {
+                winner = player1.getName();
+                return true;
+            }
+        }
         if (currentPhase != Phase.PLACE
                 && (player1.countPawns() < 3 || player2.countPawns() < 3)
                 && (player1.getRemainingPawns() == 0 || player2.getRemainingPawns() == 0)) {
             return true;
         } else return false;
+    }
+    public String getwinner(){
+        return winner;
     }
 
     public void stopGame() {
@@ -155,6 +170,38 @@ public class Game extends Controller {
         } else if (player2.countPawns() < 3) {
 //            System.out.println(player1.getName() + " wins");
         }
+    }
+
+    public boolean isblocked(PlayerC player){
+        for (Pawn pawn : player.getPawns()) {
+            if (pawn == null || !pawn.isPlaced()){
+                continue;
+            }
+            Position source = pawn.getPos();
+            List<Position> neighbors = getNeighbors(source);
+            for (Position dest : neighbors) {
+                if (board.isEmpty(dest)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private List<Position> getNeighbors(Position p) {
+        List<Position> neighbors = new ArrayList<>();
+        int x = p.getX();
+        int y = p.getY();
+        neighbors.add(new Position((x + 1) % 8, y));
+        neighbors.add(new Position((x + 7) % 8, y));
+        if (x % 2 != 0) {
+            if (y > 0) {
+                neighbors.add(new Position(x, y - 1));
+            }
+            if (y < 2) {
+                neighbors.add(new Position(x, y + 1));
+            }
+        }
+        return neighbors;
     }
 
     public void playPlace() {
