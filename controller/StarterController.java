@@ -71,6 +71,14 @@ public class StarterController {
         alertrules.setGraphic(ruleimage);
         alertrules.showAndWait();
     }
+    @FXML
+    private void onaboutbuttonclicked() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText("Nine Men's Morris — Merels");
+        alert.setContentText("SAE Project — JavaFX");
+        alert.showAndWait();
+    }
 
     @FXML
     void oneveclicked(ActionEvent event) throws Exception {

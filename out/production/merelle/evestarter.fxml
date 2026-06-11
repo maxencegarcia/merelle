@@ -50,14 +50,14 @@
         <Menu mnemonicParsing="false" text="%file">
           <items>
             <MenuItem fx:id="newButton" mnemonicParsing="false" onAction="#onnewclicked" text="%new" />
-            <MenuItem mnemonicParsing="false" text="%open" />
+<!--            <MenuItem mnemonicParsing="false" text="%open" />-->
             <MenuItem fx:id="quitButton" mnemonicParsing="false" onAction="#onquitclicked" text="%quit" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
           <items>
-                  <MenuItem mnemonicParsing="false" text="%rules" />
-            <MenuItem mnemonicParsing="false" text="%about" />
+              <MenuItem mnemonicParsing="false" text="%rules" onAction="#onrulesbuttonclicked" />
+              <MenuItem mnemonicParsing="false" text="%about" onAction="#onaboutbuttonclicked" />
           </items>
         </Menu>
       </menus>
