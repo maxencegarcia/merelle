@@ -1,36 +1,44 @@
 # Jeu du Moulin (Nine Men's Morris)
 
-Salut ! Bienvenue sur notre projet de **Jeu du Moulin** (ou Merelle pour les intimes). C'est un petit projet Java fait avec le framework **Boardifier**.
+Bienvenue sur le projet **Jeu du Moulin** (ou Merelle), développé en **Java** en utilisant le framework **Boardifier** et **JavaFX**.
 
-On a essayé de faire un truc propre où tu peux jouer contre tes potes ou contre une IA qui se débrouille pas trop mal.
+---
 
-## Comment lancer le bouzin ?
+## Modes de Jeu
 
-C'est super simple, il te faut juste Java installé sur ta machine.
+Au lancement, l'application propose trois modes de jeu :
+* **Joueur vs Joueur** : Affrontez un ami sur la même machine.
+* **Joueur vs Ordinateur** : Défiez notre IA (`StrategieMoulinIA`).
+* **Ordinateur vs Ordinateur** : Regardez deux IA s'affronter.
 
-1. Tu compiles tout :
+---
+
+## Fonctionnalités Principales
+
+* **IA Intelligente (`StrategieMoulinIA`)** : Analyse le plateau pour former ses propres moulins et bloquer activement les vôtres.
+* **Gestion Complète des Phases** : 
+    1. *Phase de placement* : Pose des pions sur le plateau.
+    2. *Phase de déplacement* : Glissement des pions vers les intersections voisines.
+    3. *Phase de vol* : Quand un moulin est crée un pion adverse est enlevé
+* **Interface Graphique** : Un rendu visuel propre et interactif fait avec JavaFX.
+
+---
+
+## Installation et Lancement
+
+### Prérequis
+* **Java JDK 17** (ou supérieur)
+* **JavaFX correspondant au JdK choisi
+* **IntelliJ IDEA** (recommandé)
+
+### Étapes d'installation
+
+1. **Cloner le projet** :
    ```bash
-    javac *.java
-   ```
-2. Tu lances le jeu :
+   git clone [https://github.com/votre-username/nom-du-repo.git](https://github.com/maxencegarcia/merelle.git)
+2. **Ouvrir le projet avec intellij idea**
+3. **Ajouter JavaFx dans les librairies du projet**
+4. **Ajouter les options de JVM dans la configuration de lancement
    ```bash
-   java Merelle
-   ```
-
-## C'est quoi les modes ?
-
-Quand tu lances le jeu, tu as le choix entre :
-- **Mode 1 : Joueur vs Joueur** - Le grand classique pour régler ses comptes.
-- **Mode 2 : Joueur vs Ordinateur** - Si tu n'as pas d'amis sous la main (ou si tu veux tester l'IA).
-- **Mode 3 : Ordinateur vs Ordinateur** - Juste pour regarder deux bots se battre. C'est assez relax. Ou pour écrire des orders c'est assez pratique
-
-## Ce qu'on a mis dedans
-
-- Une **IA (StrategieMoulinIA)** qui essaie de faire des moulins et de te bloquer quand tu es sur le point d'en faire un.
-- Une gestion des phases (Placement, Déplacement, Vol de pion).
-- Un affichage console pas parfait mais qui fait le taff.
-
-## Tech
-- **Java** (évidemment)
-- **Boardifier** (le framework de base pour le plateau)
-
+   --module-path /home/..../JavaFX/lib/ --add-modules javafx.controls,javafx.fxml
+5. **Lancer le jeu avec la flèche verte en haut de l'interface de idea**
