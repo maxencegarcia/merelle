@@ -9,11 +9,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import java.util.ResourceBundle;
 import java.util.Locale;
@@ -40,6 +39,7 @@ public class StarterController {
     @FXML private Button pvpButton;
     @FXML private Button pveButton;
     @FXML private Button eveButton;
+    @FXML private Button rulesbutton;
     @FXML private MenuItem newButton;
     @FXML private MenuItem openButton;
     @FXML private MenuItem quitButton;
@@ -57,6 +57,19 @@ public class StarterController {
     @FXML
     void onpveclicked(ActionEvent event) throws Exception {
         loadScene("/view/pvestarter.fxml", pveButton);
+    }
+    @FXML
+    void onrulesbuttonclicked(ActionEvent event) throws Exception {
+        Alert alertrules = new Alert(Alert.AlertType.INFORMATION);
+        alertrules.setTitle("Rules");
+        alertrules.setHeaderText(null);
+        ImageView ruleimage = new ImageView();
+        ruleimage.setImage(new Image(getClass().getResourceAsStream("/pictures/rules.png")));
+        ruleimage.setFitWidth(450);
+        alertrules.getDialogPane().setMaxWidth(455);
+        alertrules.getDialogPane().setMinHeight(400);
+        alertrules.setGraphic(ruleimage);
+        alertrules.showAndWait();
     }
 
     @FXML

@@ -9,6 +9,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import java.util.Locale;
 import java.util.ResourceBundle;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -245,6 +248,20 @@ private void handleNewGame() {
     @FXML
     private void handleQuit() {
         Platform.exit();
+    }
+
+    @FXML
+    private void handlerules(){
+        Alert alertrules = new Alert(Alert.AlertType.INFORMATION);
+        alertrules.setTitle("Rules");
+        alertrules.setHeaderText(null);
+        ImageView ruleimage = new ImageView();
+        ruleimage.setImage(new Image(getClass().getResourceAsStream("/pictures/rules.png")));
+        ruleimage.setFitWidth(450);
+        alertrules.getDialogPane().setMaxWidth(455);
+        alertrules.getDialogPane().setMinHeight(400);
+        alertrules.setGraphic(ruleimage);
+        alertrules.showAndWait();
     }
 
     @FXML
