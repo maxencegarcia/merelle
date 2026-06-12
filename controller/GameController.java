@@ -1,12 +1,15 @@
 package controller;
 import boardifier.model.Model;
 import boardifier.model.Player;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -210,9 +213,11 @@ public class GameController {
                 game.getInputQueue().offer(pos);
                 updateButtonStyles();
             } else {
+                // On a déjà une source sélectionnée, on lance l'animation avant de soumettre la destination
+                Position src = selectedPosition;
                 selectedPosition = null;
                 messageLabel.setText("");
-                game.getInputQueue().offer(pos);
+                animateMove(src, pos, () -> game.getInputQueue().offer(pos));
             }
         } else {
             game.getInputQueue().offer(pos);
@@ -229,6 +234,46 @@ public class GameController {
 //        messageLabel.setText("");
 //        refreshDisplay();
 //    }
+
+    private void animateMove(Position from, Position to, Runnable onDone) {
+        Button srcBtn = null;
+        Button dstBtn = null;
+        for (int i = 0; i < 24; i++) {
+            if (boardPositions[i].equals(from)) srcBtn = positionButtons[i];
+            if (boardPositions[i].equals(to))   dstBtn = positionButtons[i];
+        }
+        if (srcBtn == null || dstBtn == null) {
+            onDone.run();
+            return;
+        }
+
+        Pawn movingPawn = board.getPawn(from);
+        javafx.scene.paint.Color fill = (movingPawn != null && movingPawn.getColor() == Color.WHITE)
+                ? javafx.scene.paint.Color.web("#EDD9A3")
+                : javafx.scene.paint.Color.web("#222211");
+
+        Circle ghost = new Circle(13, fill);
+        ghost.setStroke(javafx.scene.paint.Color.web("#FFD700"));
+        ghost.setStrokeWidth(2);
+        ghost.setOpacity(0.85);
+        ghost.setLayoutX(srcBtn.getLayoutX() + srcBtn.getPrefWidth()  / 2.0);
+        ghost.setLayoutY(srcBtn.getLayoutY() + srcBtn.getPrefHeight() / 2.0);
+        boardOverlay.getChildren().add(ghost);
+
+        double dx = (dstBtn.getLayoutX() + dstBtn.getPrefWidth()  / 2.0)
+                  - (srcBtn.getLayoutX() + srcBtn.getPrefWidth()  / 2.0);
+        double dy = (dstBtn.getLayoutY() + dstBtn.getPrefHeight() / 2.0)
+                  - (srcBtn.getLayoutY() + srcBtn.getPrefHeight() / 2.0);
+
+        TranslateTransition tt = new TranslateTransition(Duration.millis(350), ghost);
+        tt.setByX(dx);
+        tt.setByY(dy);
+        tt.setOnFinished(e -> {
+            boardOverlay.getChildren().remove(ghost);
+            onDone.run();
+        });
+        tt.play();
+    }
 
 @FXML
 private void handleNewGame() {

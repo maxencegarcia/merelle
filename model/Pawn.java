@@ -1,6 +1,9 @@
 package model;
+import boardifier.control.Logger;
 import boardifier.model.GameElement;
 import boardifier.model.ElementTypes;
+import boardifier.model.animation.Animation;
+import boardifier.model.animation.AnimationStep;
 import boardifier.model.GameStageModel;
 import model.Board;
 import model.Game;
@@ -29,6 +32,7 @@ public class Pawn extends GameElement {
         this.color = color;
         this.pos = null;
     }
+    
 
     public void place(Position pos) {
         this.pos = pos;
@@ -45,4 +49,22 @@ public class Pawn extends GameElement {
     public Color getColor() { return this.color; }
     public int getNumber() { return this.number; }
     public Position getPos() { return this.pos; }
+
+    @Override
+    public void update() {
+        // if must be animated, move the pawn
+        if (animation != null) {
+            AnimationStep step = animation.next();
+            if (step == null) {
+                animation = null;
+            }
+            else if (step == Animation.NOPStep) {
+                Logger.debug("nothing to do", this);
+            }
+            else {
+                Logger.debug("move animation", this);
+                setLocation(step.getInt(0), step.getInt(1));
+            }
+        }
+    }
 }
