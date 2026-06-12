@@ -14,7 +14,7 @@ public class Player {
      */
     protected List<String> keyPressed;
 
-    public Player(int type, String name) {
+    protected Player(int type, String name) {
          this.type = type;
          this.name = name;
          this.keyPressed = new ArrayList<>();

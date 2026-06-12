@@ -13,6 +13,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import boardifier.model.Model;
 import java.util.Arrays;
 import java.util.Collections;
+import model.Board;
+import model.Game;
+import model.Pawn;
+import model.Position;
+import model.PlayerC;
+import model.StrategyDEFAI;
+import model.StrategyMillAI;
+import model.AIStrategy;
+import view.BoardLook;
+import view.MerelleStageView;
+import view.PawnLook;
+import model.Color;
+import model.Phase;
+import model.Merelle;
+import model.MerelleStageModel;
+import model.MerelleStageElementsFactory;
+import model.AdvancedMillAI;
 
 @ExtendWith(MockitoExtension.class)
 public class AdvancedMillAITest {
@@ -35,12 +52,16 @@ public class AdvancedMillAITest {
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
-        assertEquals(targetPos, result, "The AI ​​must choose the square that gives it a windmill");
+        assertEquals(targetPos, result, "The AI must choose the cell that gives it a mill");
     }
 
     @Test
     void testChoosePlacement_BlockEnemyMillIfNoOwnMillPossible() {
         Position targetPos = new Position(2, 1);
+
+        // LENIENT: avoids PotentialStubbingProblem caused by reference equality
+        // of Position (the new Position() instances in the source code
+        // do not match those in the test)
         lenient().when(board.isEmpty(any(Position.class))).thenReturn(false);
         lenient().when(board.isEmpty(targetPos)).thenReturn(true);
 
@@ -50,7 +71,7 @@ public class AdvancedMillAITest {
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
-        assertEquals(targetPos, result, "The AI ​​must block the opponent's mill if it cannot make one");
+        assertEquals(targetPos, result, "The AI must block the enemy mill if it cannot form one of its own");
     }
 
     @Test
@@ -65,7 +86,7 @@ public class AdvancedMillAITest {
 
         Position result = ai.choosePlacement(Color.WHITE, Color.BLACK);
 
-        assertEquals(emptyPos, result, "The AI ​​must fall back on the first empty priority square");
+        assertEquals(emptyPos, result, "The AI must fall back to the first available priority cell");
     }
 
     @Test
@@ -90,7 +111,7 @@ public class AdvancedMillAITest {
 
         assertNotNull(result);
         assertEquals(source, result[0], "The starting position must be 0,0");
-        assertEquals(dest, result[1], "The arrival position must be 1,0 (mill creation)");
+        assertEquals(dest, result[1], "The destination position must be 1,0 (mill creation)");
     }
 
     @Test
@@ -115,7 +136,7 @@ public class AdvancedMillAITest {
 
         assertNotNull(result);
         assertEquals(source, result[0]);
-        assertEquals(dest,   result[1], "The AI ​​should be able to 'fly' to 7.2 if it only has 3 pawns");
+        assertEquals(dest,   result[1], "The AI must be able to 'fly' to 7,2 if it has only 3 pawns");
     }
 
     @Test
@@ -146,7 +167,7 @@ public class AdvancedMillAITest {
 
         Position result = ai.chooseSteal(Color.BLACK);
 
-        assertEquals(target, result, "The AI ​​must steal the pawn from the available priority space");
+        assertEquals(target, result, "The AI must steal the pawn on the available priority cell");
     }
 
     @Test
@@ -160,6 +181,6 @@ public class AdvancedMillAITest {
 
         Position result = ai.chooseSteal(Color.BLACK);
 
-        assertEquals(new Position(0, 0), result, "The AI ​​must fall back on other squares if the priority squares are protected.");
+        assertEquals(new Position(0, 0), result, "The AI must fall back to other cells if the priority ones are protected");
     }
 }

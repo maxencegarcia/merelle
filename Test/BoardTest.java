@@ -9,6 +9,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import model.Board;
+import model.Game;
+import model.Pawn;
+import model.Position;
+import model.PlayerC;
+import model.StrategyDEFAI;
+import model.StrategyMillAI;
+import model.AIStrategy;
+import view.BoardLook;
+import view.MerelleStageView;
+import view.PawnLook;
+import model.Color;
+import model.Phase;
+import model.Merelle;
+import model.MerelleStageModel;
+import model.MerelleStageElementsFactory;
 
 @ExtendWith(MockitoExtension.class)
 class BoardTest {

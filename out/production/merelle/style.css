@@ -1,0 +1,51 @@
+/* Base style for all position selectors */
+.pawn-button {
+    -fx-background-radius: 13px;
+    -fx-border-radius: 13px;
+    -fx-min-width: 26px;
+    -fx-min-height: 26px;
+    -fx-max-width: 26px;
+    -fx-max-height: 26px;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-text-fill: transparent;
+}
+
+/* Empty node style */
+.pawn-button.empty {
+    -fx-background-color: rgba(60, 30, 5, 0.18);
+    -fx-border-color: rgba(80, 50, 10, 0.40);
+    -fx-border-width: 1.5;
+}
+
+/* White Pawn */
+.pawn-button.white {
+    -fx-background-color: radial-gradient(center 35% 30%, radius 55%, #FFFEF5, #EDD9A3 55%, #C8A860);
+    -fx-border-color: #A08040;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 1, 2);
+}
+
+/* Black Pawn */
+.pawn-button.black {
+    -fx-background-color: radial-gradient(center 35% 30%, radius 55%, #555544, #222211 55%, #0A0A08);
+    -fx-border-color: #444433;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 5, 0, 1, 2);
+}
+
+/* Selected Pawn highlighted for movement */
+.pawn-button.selected-white {
+    -fx-background-color: radial-gradient(center 35% 30%, radius 55%, #FFFEF5, #EDD9A3 55%, #C8A860);
+    -fx-border-color: #FFD700;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(255,200,0,0.8), 10, 0.5, 0, 0);
+}
+
+.pawn-button.selected-black {
+    -fx-background-color: radial-gradient(center 35% 30%, radius 55%, #555544, #222211 55%, #0A0A08);
+    -fx-border-color: #FFD700;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(255,200,0,0.8), 10, 0.5, 0, 0);
+}
+

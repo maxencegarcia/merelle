@@ -10,6 +10,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import model.Board;
+import model.Game;
+import model.Pawn;
+import model.Position;
+import model.PlayerC;
+import model.StrategyDEFAI;
+import model.StrategyMillAI;
+import model.AIStrategy;
+import view.BoardLook;
+import view.MerelleStageView;
+import view.PawnLook;
+import model.Color;
+import model.Phase;
+import model.Merelle;
+import model.MerelleStageModel;
+import model.MerelleStageElementsFactory;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerCTest {
@@ -54,13 +70,13 @@ class PlayerCTest {
     @Test
     void testInitialRemainingPawns() {
         assertEquals(9, humanPlayer.getRemainingPawns(),
-                "remainingPawns must be worth pawnCount at creation");
+                "remainingPawns must equal pawnCount at creation");
     }
 
     @Test
     void testInitialPawnsArray_CorrectSize() {
         assertEquals(9, humanPlayer.getPawns().length,
-                "The pawn board must have the size pawnCount");
+                "The pawn array must have size pawnCount");
     }
 
     @Test
@@ -74,7 +90,7 @@ class PlayerCTest {
     void testInitialPawns_CorrectColor() {
         for (Pawn p : humanPlayer.getPawns()) {
             assertEquals(Color.WHITE, p.getColor(),
-                    "Each pawn must be the player's color.");
+                    "Each pawn must have the player's color");
         }
     }
 
@@ -83,14 +99,15 @@ class PlayerCTest {
         Pawn[] pawns = humanPlayer.getPawns();
         for (int i = 0; i < pawns.length; i++) {
             assertEquals(i + 1, pawns[i].getNumber(),
-                    "the pawn " + i + " must have the number " + (i + 1));
+                    "Pawn " + i + " must have number " + (i + 1));
         }
     }
 
     @Test
     void testInitialPawns_NoneAreUnplaced() {
+        // No pawn must be placed at the start
         for (Pawn p : humanPlayer.getPawns()) {
-            assertFalse(p.isPlaced(), "No pawns should be placed at the start");
+            assertFalse(p.isPlaced(), "No pawn must be placed at the start");
         }
     }
 
@@ -99,7 +116,7 @@ class PlayerCTest {
     void testGetUnplacedPawn_ReturnsFirstUnplaced() {
         Pawn pawn = humanPlayer.getUnplacedPawn();
         assertNotNull(pawn, "Must return an unplaced pawn");
-        assertFalse(pawn.isPlaced(), "The turned-over pawn must not be placed");
+        assertFalse(pawn.isPlaced(), "The returned pawn must not be placed");
     }
 
     @Test
@@ -107,36 +124,40 @@ class PlayerCTest {
         int before = humanPlayer.getRemainingPawns();
         humanPlayer.getUnplacedPawn();
         assertEquals(before - 1, humanPlayer.getRemainingPawns(),
-                "remainingPawns must decrease by 1 with each call");
+                "remainingPawns must decrease by 1 on each call");
     }
 
     @Test
     void testGetUnplacedPawn_ReturnsNullWhenAllPlaced() {
+        // Place all pawns
         for (Pawn p : humanPlayer.getPawns()) {
             p.place(new Position(0, 0));
         }
         assertNull(humanPlayer.getUnplacedPawn(),
-                "Must return null when all the pieces are placed");
+                "Must return null when all pawns are placed");
     }
 
     @Test
     void testGetUnplacedPawn_SkipsAlreadyPlacedPawns() {
         Pawn[] pawns = humanPlayer.getPawns();
+        // Place the first 3
         pawns[0].place(new Position(0, 0));
         pawns[1].place(new Position(1, 0));
         pawns[2].place(new Position(2, 0));
 
         Pawn result = humanPlayer.getUnplacedPawn();
         assertSame(pawns[3], result,
-                "Must return the 4th pawn (first one not placed)");
+                "Must return the 4th pawn (first unplaced one)");
     }
 
     @Test
     void testGetUnplacedPawn_SkipsNullSlots() {
         Pawn[] pawns = humanPlayer.getPawns();
+        // Simulate a removal: slot 0 = null
         humanPlayer.removePawn(pawns[0]);
+
         Pawn result = humanPlayer.getUnplacedPawn();
-        assertNotNull(result, "Must ignore null slots and return a valid token");
+        assertNotNull(result, "Must ignore null slots and return a valid pawn");
         assertSame(pawns[1], result);
     }
 
@@ -147,7 +168,7 @@ class PlayerCTest {
         Pawn second = humanPlayer.getUnplacedPawn();
 
         assertNotSame(first, second,
-                "Two consecutive calls (with placement between them) must return different pawns");
+                "Two consecutive calls (with placement in between) must return different pawns");
     }
 
     // -------------------------------------------------------------------------
@@ -157,7 +178,7 @@ class PlayerCTest {
     @Test
     void testCountPawns_InitiallyZero() {
         assertEquals(0, humanPlayer.countPawns(),
-                "No pawns placed at the start");
+                "No pawn placed at the start");
     }
 
     @Test
@@ -191,9 +212,10 @@ class PlayerCTest {
     void testCountPawns_IgnoresUnplacedPawns() {
         Pawn[] pawns = humanPlayer.getPawns();
         pawns[0].place(new Position(0, 0));
+        // pawns[1] not placed
 
         assertEquals(1, humanPlayer.countPawns(),
-                "countPawns() should only count the placed pawns");
+                "countPawns() must only count placed pawns");
     }
 
 
@@ -203,7 +225,7 @@ class PlayerCTest {
         Pawn target = humanPlayer.getPawns()[2];
         humanPlayer.removePawn(target);
         assertNull(humanPlayer.getPawns()[2],
-                "The slot of the removed pawn must be null");
+                "The removed pawn's slot must be null");
     }
 
     @Test
@@ -223,12 +245,13 @@ class PlayerCTest {
 
         for (int i = 1; i < pawns.length; i++) {
             assertNotNull(pawns[i],
-                    "Only the targeted slot should be set to null.");
+                    "Only the targeted slot must be set to null");
         }
     }
 
     @Test
     void testRemovePawn_UnknownPawn_NoEffect() {
+        // Create an unknown pawn not present in the array
         try (MockedStatic<ElementTypes> mocked = mockStatic(ElementTypes.class)) {
             mocked.when(() -> ElementTypes.getType("sprite")).thenReturn(0);
             Pawn stranger = new Pawn(Color.WHITE, 99, gameStageModel);
@@ -240,28 +263,29 @@ class PlayerCTest {
             if (p == null) nullCount++;
         }
         assertEquals(0, nullCount,
-                "Removing a foreign pawn should not change any slots");
+                "Removing an unknown pawn must not modify any slot");
     }
 
     @Test
     void testRemovePawn_OnlyFirstOccurrenceRemoved() {
+        // Verify that removePawn stops at the first match (return after)
         Pawn target = humanPlayer.getPawns()[4];
         humanPlayer.removePawn(target);
-        humanPlayer.removePawn(target);
+        humanPlayer.removePawn(target); // second call: target is already null
 
         long nullCount = 0;
         for (Pawn p : humanPlayer.getPawns()) {
             if (p == null) nullCount++;
         }
         assertEquals(1, nullCount,
-                "Only one slot should be null after two removePawn operations on the same pawn.");
+                "Only one slot must be null after two removePawn calls on the same pawn");
     }
 
 
     @Test
     void testTwoPlayers_IndependentPawnArrays() {
         assertNotSame(humanPlayer.getPawns(), aiPlayer.getPawns(),
-                "Each player must have their own board of pieces.");
+                "Each player must have their own pawn array");
     }
 
     @Test

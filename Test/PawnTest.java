@@ -8,6 +8,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import boardifier.model.GameStageModel;
+import model.Board;
+import model.Game;
+import model.Pawn;
+import model.Position;
+import model.PlayerC;
+import model.StrategyDEFAI;
+import model.StrategyMillAI;
+import model.AIStrategy;
+import view.BoardLook;
+import view.MerelleStageView;
+import view.PawnLook;
+import model.Color;
+import model.Phase;
+import model.Merelle;
+import model.MerelleStageModel;
+import model.MerelleStageElementsFactory;
 
 @ExtendWith(MockitoExtension.class)
 

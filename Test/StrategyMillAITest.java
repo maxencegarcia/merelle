@@ -9,6 +9,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import model.Board;
+import model.Game;
+import model.Pawn;
+import model.Position;
+import model.PlayerC;
+import model.StrategyDEFAI;
+import model.StrategyMillAI;
+import model.AIStrategy;
+import view.BoardLook;
+import view.MerelleStageView;
+import view.PawnLook;
+import model.Color;
+import model.Phase;
+import model.Merelle;
+import model.MerelleStageModel;
+import model.MerelleStageElementsFactory;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -24,6 +40,7 @@ class StrategyMillAITest {
     @BeforeEach
     void setUp() {
         strategy = new StrategyMillAI(board, game);
+        // Valeurs par défaut : plateau plein, aucun moulin
         when(board.isEmpty(any(Position.class))).thenReturn(false);
         when(board.getPawn(any(Position.class))).thenReturn(null);
         when(game.isAMill(any(Position.class), any(Color.class))).thenReturn(false);
@@ -37,6 +54,7 @@ class StrategyMillAITest {
     void choosePlacement_ownMillNoRiposte_returnsMillPosition() {
         when(board.isEmpty(new Position(1, 0))).thenReturn(true);
         when(game.isAMill(new Position(1, 0), Color.WHITE)).thenReturn(true);
+        // isAMill(_, BLACK) reste false → enemyCanMillAfter = false → moulin sûr
 
         assertEquals(new Position(1, 0), strategy.choosePlacement(Color.WHITE, Color.BLACK));
     }
@@ -77,6 +95,7 @@ class StrategyMillAITest {
 
     @Test
     void choosePlacement_boardFull_returnsNull() {
+        // board.isEmpty retourne false partout (défaut setUp)
         assertNull(strategy.choosePlacement(Color.WHITE, Color.BLACK));
     }
 
@@ -106,6 +125,7 @@ class StrategyMillAITest {
         when(pawn.getPos()).thenReturn(new Position(0, 0));
         when(player.getPawns()).thenReturn(new Pawn[]{pawn});
         when(player.getColor()).thenReturn(Color.WHITE);
+        // Seul voisin libre : (7,0) — (1,0) reste occupée (défaut false)
         when(board.isEmpty(new Position(7, 0))).thenReturn(true);
 
         Position[] result = strategy.chooseMove(player);
@@ -136,6 +156,7 @@ class StrategyMillAITest {
         when(pawn.getPos()).thenReturn(new Position(0, 0));
         when(player.getPawns()).thenReturn(new Pawn[]{pawn});
         when(player.getColor()).thenReturn(Color.WHITE);
+        // isEmpty reste false pour tous les voisins (défaut)
 
         assertNull(strategy.chooseMove(player));
     }
@@ -181,6 +202,7 @@ class StrategyMillAITest {
 
     @Test
     void chooseSteal_noEnemyPawns_returnsNull() {
+        // board.getPawn retourne null partout (défaut setUp)
         assertNull(strategy.chooseSteal(Color.BLACK));
     }
 }
