@@ -37,6 +37,54 @@ Au lancement, l'application propose trois modes de jeu :
    ```bash
    git clone [https://github.com/votre-username/nom-du-repo.git](https://github.com/maxencegarcia/merelle.git)
 2. **Ouvrir le projet avec intellij idea**
+
+
+
+## Project Setup
+
+It is possible that the `main` branch may not work correctly on the first try. If you do not want to configure everything manually, you can use the `graphepassu` branch, which is already almost fully configured. The only remaining step is to configure your Java installation.
+
+> **Note:** This project uses **Java 21 or later**.
+
+### Module Configuration
+
+If you choose to use the `main` branch, configure the modules as follows:
+
+| Module/Folder | Configuration |
+|--------------|--------------|
+| `merelle` (project root folder) | Mark as **Source** |
+| `view` | Mark as **Source** |
+| `test` | Mark as **Test Sources** |
+
+### Dependencies
+
+Add the following dependencies to the project:
+
+- JDK 21+
+- Mockito
+- JUnit
+
+### JavaFX Configuration
+
+Configure your launcher with the following settings:
+
+#### VM Options
+
+```text
+--module-path /path/to/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml
+```
+
+Replace `/path/to/javafx-sdk/lib` with the path to your JavaFX SDK installation.
+
+#### Main Class
+
+```text
+view.MerelleApp
+```
+
+### Alternative Setup
+
+If you prefer a simpler setup process, use the `graphepassu` branch instead of `main`. Most of the project configuration is already completed there, and only the Java installation needs to be configured.
 3. **Ajouter JavaFx dans les librairies du projet**
 4. **Ajouter les options de JVM dans la configuration de lancement
    ```bash
